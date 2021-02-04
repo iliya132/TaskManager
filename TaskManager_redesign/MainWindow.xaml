@@ -1,0 +1,365 @@
+﻿<Window x:Class="TaskManager_redesign.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TaskManager_redesign"
+        xmlns:model="clr-namespace:TaskManager_redesign.Model"
+        xmlns:converters="clr-namespace:TaskManager_redesign.Converters"
+        xmlns:extensions="clr-namespace:TaskManager_redesign.Miscellaneous"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="1024" Width="1440" WindowState="Maximized" 
+        xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
+        UseLayoutRounding="True" DataContext="{Binding Source={StaticResource MainViewModel}}">
+
+    <Window.Resources>
+        <ResourceDictionary >
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Theme.xaml"/>
+                <ResourceDictionary>
+                    <converters:StatusToIcoConverter x:Key="statusToIco"/>
+                    <converters:DateTimeToWindowConverter x:Key="DateToStr"/>
+                    <converters:AssigneeToStringConverter x:Key="AssigneeToStr"/>
+                    <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+                    <converters:UserTaskToSelectionConverter x:Key="UserTaskToSelectionConverter"/>
+                    <converters:TaskToBorderBrushConverter x:Key="TaskToBorderBrushConverter"/>
+                </ResourceDictionary>
+                <ResourceDictionary>
+                    <Style x:Key="TreeViewItemStyle1" TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                        <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                        <Setter Property="Padding" Value="1,0,0,0"/>
+                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                        <Setter Property="FocusVisualStyle" Value="{StaticResource TreeViewItemFocusVisual}"/>
+                        <Setter Property="Header" Value="{Binding}"/>
+                        <Setter Property="Foreground" Value="Black"/>
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded}"/>
+                        
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type TreeViewItem}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition MinWidth="19" Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="40"/>
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Border x:Name="Bd" Grid.Column="1" Height="35" Grid.Row="0" 
+                                                BorderBrush="#FFF6F6F6" BorderThickness="1" 
+                                                Background="white" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true"
+                                                PreviewMouseLeftButtonDown="Bd_MouseDown" 
+                                                MouseMove="Grid_MouseMove"
+                                                AllowDrop="True"
+                                                Drop="Bd_Drop"
+                                                DragEnter="Bd_DragEnter">
+                                            <Grid Name="contentGrid">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="10"/>
+                                                    <ColumnDefinition Width="20"/>
+                                                    <ColumnDefinition Width="18*"/>
+                                                    <ColumnDefinition Width="71*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <ToggleButton x:Name="Expander" Grid.Column="0" ClickMode="Press" IsChecked="{Binding IsExpanded, Mode=TwoWay}" Style="{StaticResource ExpandCollapseToggleStyle}" Grid.ColumnSpan="2" Margin="7,8,7,9"/>
+                                                <ContentPresenter x:Name="PART_Header" Grid.Column="2" ContentSource="Header" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Grid.ColumnSpan="2"/>
+                                            </Grid>
+                                        </Border>
+                                        <ItemsPresenter x:Name="ItemsHost" Grid.Row="1" Grid.Column="1" />
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsExpanded" Value="false">
+                                            <Setter Property="Visibility" TargetName="ItemsHost" Value="Collapsed"/>
+                                        </Trigger>
+                                        <Trigger Property="HasItems" Value="false">
+                                            <Setter Property="Visibility" TargetName="Expander" Value="Hidden"/>
+                                        </Trigger>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsHeader}" Value="False"/>
+                                                <Condition Binding="{Binding IsSelected}" Value="True"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="contentGrid" Value="#E5E5E5"/>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="Red"/>
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
+                                            
+                                        </MultiDataTrigger>
+                                        <DataTrigger Binding="{Binding IsHeader}" Value="True">
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="transparent"/>
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="0"/>
+                                            <Setter Property="Background" TargetName="Bd" Value="transparent"/>
+                                            <Setter Property="IsExpanded" Value="True"/>
+                                            <Setter Property="IsEnabled" TargetName="Bd" Value="False"/>
+                                            <Setter Property="IsManipulationEnabled" TargetName="Bd" Value="False"/>
+                                            <Setter Property="Visibility" TargetName="Expander" Value="Collapsed"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                        <Trigger Property="IsSelected" Value="true">
+                                            
+                                        </Trigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsSelected" Value="true"/>
+                                                <Condition Property="IsSelectionActive" Value="false"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="Bd" Value="gray"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}"/>
+                                        </MultiTrigger>
+                                        <Trigger Property="IsEnabled" Value="false">
+                                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="VirtualizingPanel.IsVirtualizing" Value="true">
+                                <Setter Property="ItemsPanel">
+                                    <Setter.Value>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                                <DataTrigger Binding="{Binding IsHeader}" Value="True">
+                                    <Setter Property="Foreground" Value="White"/>
+                                </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+
+    </Window.Resources>
+    <Grid Background="{StaticResource MainBackground}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="190"/>
+            <ColumnDefinition Width="884*" MinWidth="300"/>
+            <ColumnDefinition Width="360"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="112*"/>
+            <RowDefinition Height="900*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Name="Header">
+            <StackPanel Orientation="Horizontal" >
+                <Image Source="/res/a-logo.png" Width="32.68" Height="49" VerticalAlignment="Center" Margin="25 35 0 23"/>
+                <TextBlock Text="TaskManager" Style="{StaticResource h1}" VerticalAlignment="Center" Margin="10.32 40 0 23"/>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1" Grid.Column="0" Name="Menu">
+            <StackPanel>
+                <Button  Content="Все задачи" Style="{StaticResource MenuButton}" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=SetFilterState}" CommandParameter="AllTasks"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button  Content="Я ответственный" Style="{StaticResource MenuButton}" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=SetFilterState}" CommandParameter="AssignedToMe"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button  Content="Я инициатор" Style="{StaticResource MenuButton}" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=SetFilterState}" CommandParameter="ReportedByMe"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button  Style="{StaticResource MenuButton}" Click="OpenCloseExportSubMenu" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
+                    <StackPanel Orientation="Horizontal" >
+                        <Image Name="dropDownImg" Source="/res/dropdown2.png" Width="15" Height="15" Margin="0 0 0 0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Выгрузить в файл" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <StackPanel x:Name="ExportSubMenu" Visibility="Collapsed">
+                    <Button  Content="План реализации" Style="{StaticResource SubMenuButton}"/>
+                    <Button  Content="Дерево задач" Style="{StaticResource SubMenuButton}" Margin="0 0 0 7.67"/>
+                </StackPanel>
+
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1" Grid.Column="1" Name="TaskCanvas" Background="#FF6F7D88">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="62*"/>
+                <RowDefinition Height="834*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <TextBlock Text="Все задачи" Name="CanvasTitle" Style="{StaticResource Canvas-Title-h2}" Margin="23 16 0 0"/>
+            </Grid>
+            <Grid Grid.Row="1" Name="TasksGrid">
+                <TreeView Name="TaskTree"
+                          Drop="Bd_Drop"
+                          SelectedItemChanged="TaskTree_SelectedItemChanged"
+                    ItemsSource="{Binding UserTasks}"
+                    AllowDrop="True"
+                    ItemContainerStyle="{StaticResource TreeViewItemStyle1}" 
+                    HorizontalContentAlignment="Stretch" 
+                    Margin="12 0 21 12" 
+                    Loaded="TaskTree_Loaded"
+                    Background="{x:Null}" BorderBrush="{x:Null}">
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="SelectedItemChanged" >
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=SelectedTaskChanged}" CommandParameter="{Binding ElementName=TaskTree, Path=SelectedItem}"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Path=ChildTasks}" >
+                            <Grid>
+                                <Grid.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Удалить">
+                                            <e:Interaction.Triggers>
+                                                <e:EventTrigger EventName="Click">
+                                                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=RemoveTask}" CommandParameter="{Binding}"/>
+                                                </e:EventTrigger>
+                                            </e:Interaction.Triggers>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </Grid.ContextMenu>
+                                <TextBlock x:Name="ContentText" Grid.Row="0" Grid.Column="0" Foreground="{Binding RelativeSource={RelativeSource TemplatedParent}}" TextWrapping="WrapWithOverflow" VerticalAlignment="Center" Text="{Binding Name}"/>
+                                <Image Source="{Binding Status, Converter={StaticResource statusToIco}}" HorizontalAlignment="Right" Margin="5" Width="21"/>
+                            </Grid>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+                <Grid >
+                    <CheckBox HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="63 5" IsChecked="{Binding Source={StaticResource MainViewModel}, Path=IsCreateAsParentModeActive}">
+                        <TextBlock Text="Создать без привязки к родительской задаче" Style="{StaticResource regular-text}" Foreground="#FFFFFEFE"/>
+                    </CheckBox>
+                    <TextBox x:Name="AddNewTaskField" Style="{StaticResource placeHolder}" KeyDown="AddNewTaskField_KeyDown" Tag="+ Добавить задачу" VerticalAlignment="Bottom" Height="34" VerticalContentAlignment="Center" Margin="63 25">
+                        <e:Interaction.Triggers>
+                            <e:EventTrigger EventName="LostFocus">
+                                <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=AddNewTask}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=TextBox, Mode=FindAncestor}, Path=Text}"/>
+                                <e:ChangePropertyAction PropertyName="Text" TargetName="AddNewTaskField" Value=""/>
+                            </e:EventTrigger>
+                        </e:Interaction.Triggers>
+                    </TextBox>
+                </Grid>
+                
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="2" Grid.Row="0" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="981*"/>
+                <RowDefinition Height="50*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Name="PropertiesStackPanel" Visibility="{Binding Source={StaticResource MainViewModel}, Path=PropertiesVisibility}">
+                <Grid Background="{DynamicResource MainUserControl}" Margin="9 4">
+                    <Border BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1" CornerRadius="2"/>
+                    <StackPanel>
+                        <TextBox KeyDown="TextBox_KeyDown" IsReadOnly="False" Text="{Binding ElementName=TaskTree, Path=SelectedItem.Name}" Style="{StaticResource EditableField-h3}" TextWrapping="WrapWithOverflow" Padding="8 12" Background="{x:Null}">
+                            <e:Interaction.Triggers>
+                                <e:EventTrigger EventName="LostFocus">
+                                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=FieldUpdated}" CommandParameter="Name"/>
+                                </e:EventTrigger>
+                            </e:Interaction.Triggers>
+                        </TextBox>
+                        <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="1"/>
+                        <TextBlock Text="{Binding ElementName=TaskTree, Path=SelectedItem.CreatedAt, Converter={StaticResource DateToStr}, StringFormat=Создано: {0}}" Style="{StaticResource regular-text}" Margin="8 8 8 12"/>
+                        <!--<TextBox Name="Created_atTextBox" KeyDown="TextBox_KeyDown" Text="{Binding ElementName=TaskTree, Path=SelectedItem.CreatedAt, Converter={StaticResource DateToStr}, StringFormat=Создано: {0}}"  Style="{StaticResource EditableField}" Margin="8 0 8 12" Background="{x:Null}">
+                            <e:Interaction.Triggers>
+                                <e:EventTrigger EventName="LostFocus">
+                                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=FieldUpdated}" CommandParameter="CreatedAt"/>
+                                </e:EventTrigger>
+                            </e:Interaction.Triggers>
+                        </TextBox>-->
+                    </StackPanel>
+                </Grid>
+                <Grid Background="{DynamicResource MainUserControl}" Margin="9 4">
+                    <Border BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1" CornerRadius="2"/>
+                    <StackPanel>
+                        <TextBlock Text="Инициатор:" Style="{StaticResource h3}" Margin="8 12 0 12" VerticalAlignment="Center"/>
+                        <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
+                        <TextBlock Text="{Binding ElementName=TaskTree, Path=SelectedItem.CreatedBy}" Style="{StaticResource regular-text}" Padding="8 8 8 12"/>
+                    </StackPanel>
+                </Grid>
+                <Grid Background="{DynamicResource MainUserControl}" Margin="9 4" Name="ResponsibleBlock">
+                    <Border BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1" CornerRadius="2"/>
+                    <StackPanel>
+                        <TextBlock Text="Ответственные" Style="{StaticResource h3}" Margin="8 12 8 10"/>
+                        <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
+                        <ListView BorderBrush="{x:Null}" BorderThickness="0" IsEnabled="True" ItemsSource="{Binding ElementName=TaskTree, Path=SelectedItem.AssignedTo}" Style="{StaticResource EmployeeList}" ItemContainerStyle="{StaticResource EmployeeListViewItem}">
+                        </ListView>
+                        <Button Margin="10 5" Height="25" Style="{StaticResource AddEmployeeButton}" Click="AddAssignedAnalyticBtn_Click" HorizontalContentAlignment="Left"  BorderBrush="{x:Null}" BorderThickness="0">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/res/adduser.png" Width="21" Height="21" Margin="0 0 5 0"/>
+                                <TextBlock Text="Добавить ответственного" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+                <Grid Background="{DynamicResource MainUserControl}" Margin="9 4" Width="341">
+                    <Border BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1" CornerRadius="2"/>
+                    <StackPanel>
+                        <TextBlock Text="Срок:" Style="{StaticResource h3}" Margin="8 12 8 10" VerticalAlignment="Center"/>
+                        <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
+                        <TextBox KeyDown="TextBox_KeyDown" Text="{Binding ElementName=TaskTree, Path=SelectedItem.DueDate, Converter={StaticResource DateToStr}, StringFormat={}{0:dd.MM.yyyy}}" Style="{StaticResource placeHolder}" Tag="Укажите срок исполнения задачи" Padding="8 8 8 12" MinWidth="150" VerticalAlignment="Center">
+                            <e:Interaction.Triggers>
+                                <e:EventTrigger EventName="LostFocus">
+                                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=FieldUpdated}" CommandParameter="DueDate"/>
+                                </e:EventTrigger>
+                            </e:Interaction.Triggers>
+                        </TextBox>
+                    </StackPanel>
+                </Grid>
+                <Grid Background="{DynamicResource MainUserControl}" Margin="9 4" Name="AwaitedResultBlock">
+                    <Border BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1" CornerRadius="2"/>
+                    <StackPanel>
+                        <TextBlock Text="Ожидаемый результат" Style="{StaticResource h3}" Margin="8 12 8 10"/>
+                        <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
+                        <TextBox KeyDown="TextBox_KeyDown" Text="{Binding ElementName=TaskTree, Path=SelectedItem.AwaitedResult}" Tag="Введите ожидаемый результат" TextWrapping="WrapWithOverflow" Style="{StaticResource placeHolder}" Padding="8 8 8 12">
+                            <e:Interaction.Triggers>
+                                <e:EventTrigger EventName="LostFocus">
+                                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=FieldUpdated}" CommandParameter="AwaitedResult"/>
+                                </e:EventTrigger>
+                            </e:Interaction.Triggers>
+                        </TextBox>
+                    </StackPanel>
+                </Grid>
+                <Grid Background="{DynamicResource MainUserControl}" Margin="9 4" Name="TaskDescriptionBlock">
+                    <Border BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1" CornerRadius="2"/>
+                    <StackPanel>
+                        <TextBlock Text="Описание задачи" Style="{StaticResource h3}" Margin="8 12 8 10"/>
+                        <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
+                        <TextBox KeyDown="TextBox_KeyDown" Text="{Binding ElementName=TaskTree, Path=SelectedItem.TaskDescription}" TextWrapping="WrapWithOverflow" Style="{StaticResource placeHolder}" Tag="Введите описание к задаче" Padding="8 8 8 12">
+                            <e:Interaction.Triggers>
+                                <e:EventTrigger EventName="LostFocus">
+                                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=FieldUpdated}" CommandParameter="TaskDescription"/>
+                                </e:EventTrigger>
+                            </e:Interaction.Triggers>
+                        </TextBox>
+                    </StackPanel>
+                </Grid>
+                <Grid Background="{DynamicResource MainUserControl}" Margin="9 4" Name="RealisationPlan">
+                    <Border BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1" CornerRadius="2"/>
+                    <StackPanel>
+                        <TextBlock Text="План реализации" Style="{StaticResource h3}" Margin="8 12 8 10"/>
+                        <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
+                        <ListView Style="{StaticResource PlansList}" ItemsSource="{Binding ElementName=TaskTree, Path=SelectedItem.TaskPlans}">
+                        </ListView>
+                        <Button Click="AddPlanStepBtn_Click" Style="{StaticResource MenuButton}" HorizontalContentAlignment="Left" Margin="10" Padding="10 10 10 20" BorderBrush="{x:Null}" BorderThickness="0">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/res/plus.png" Width="25" Height="25" Margin="0 0 5 0"/>
+                                <TextBlock Text="Добавить шаг" Style="{StaticResource h3}"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+            <Button Visibility="{Binding Source={StaticResource MainViewModel}, Path=FinishButtonVisibility}" Grid.Row="1" Style="{StaticResource MenuButton}" Click="AddBtn_Click" BorderBrush="{DynamicResource MainUserControl.Border}" HorizontalContentAlignment="Left" >
+                <TextBlock Text="Отметить как завершенную" Margin="10 0" Style="{StaticResource h3}"/>
+
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

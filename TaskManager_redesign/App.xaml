@@ -1,0 +1,15 @@
+﻿<Application x:Class="TaskManager_redesign.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:TaskManager_redesign"
+             xmlns:viewmodels="clr-namespace:TaskManager_redesign.ViewModel"
+             xmlns:model="clr-namespace:TaskManager_redesign.Model"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ObjectDataProvider x:Key="MainViewModel" ObjectType="{x:Type viewmodels:MainViewModel}" MethodName="GetInstance" />
+            <ObjectDataProvider x:Key="SelectEmployeeViewModel" ObjectType="{x:Type viewmodels:SelectEmployeeViewModel}" MethodName="GetInstance" />
+            <ObjectDataProvider x:Key="AddPlanViewModel" ObjectType="{x:Type viewmodels:AddPlanViewModel}" MethodName="GetInstance" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

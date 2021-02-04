@@ -1,0 +1,41 @@
+﻿<Window x:Class="TaskManager_redesign.TextInputWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:local="clr-namespace:TaskManager_redesign"
+        mc:Ignorable="d"
+        Height="200" Width="300" WindowStartupLocation="CenterOwner" ResizeMode="CanResize"
+        WindowStyle="ThreeDBorderWindow">
+    <Window.Resources>
+        <ResourceDictionary >
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Theme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <TextBlock Name="MessageText" Style="{StaticResource regular-text}" Padding="10" TextWrapping="WrapWithOverflow"/>
+        <TextBox Name="inputTextBox" Style="{StaticResource regular-textBox}" Margin="3" Grid.Row="1" TextWrapping="Wrap" AcceptsReturn="True" Height="Auto"/>
+        <Button Content="OK" IsDefault="True" Click="Button_Click" Height="30" Grid.Row="2" Width="62" Margin="10" VerticalContentAlignment="Center" HorizontalAlignment="Left">
+            <e:Interaction.Triggers>
+                <e:EventTrigger EventName="Click">
+                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=CompleteTheTask}" CommandParameter="{Binding ElementName=inputTextBox, Path=Text}"/>
+                </e:EventTrigger>
+            </e:Interaction.Triggers>
+        </Button>
+        <Button Content="Отмена" IsCancel="True" Click="Button_Click_1" Height="30" Grid.Row="2" Width="62" Margin="10" VerticalContentAlignment="Center" HorizontalAlignment="Right">
+            <e:Interaction.Triggers>
+                <e:EventTrigger EventName="Click">
+                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=CompleteTheTask}" CommandParameter="{Binding ElementName=inputTextBox, Path=Text}"/>
+                </e:EventTrigger>
+            </e:Interaction.Triggers>
+        </Button>
+    </Grid>
+</Window>

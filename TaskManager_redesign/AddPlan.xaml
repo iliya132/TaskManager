@@ -1,0 +1,43 @@
+﻿<Window x:Class="TaskManager_redesign.AddPlan"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TaskManager_redesign"
+        xmlns:converters="clr-namespace:TaskManager_redesign.Converters"
+        xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
+        mc:Ignorable="d"
+        Title="Добавление шага задачи" Height="230" Width="420" DataContext="{Binding Source={StaticResource AddPlanViewModel}}" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" WindowStyle="ToolWindow"
+        >
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Theme.xaml"/>
+                <ResourceDictionary>
+                    <converters:DateTimeToWindowConverter x:Key="DateToStr"/>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="130"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical" Margin="7 0">
+                <TextBlock Text="Дата завершения" Style="{StaticResource h3}"/>
+            <DatePicker SelectedDate="{Binding Source={StaticResource AddPlanViewModel}, Path=DueDate}"/>
+                <TextBlock Text="Название шага" Style="{StaticResource h3}"/>
+                <TextBox BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Stretch" Text="{Binding Source={StaticResource AddPlanViewModel}, Path=Name}" Style="{StaticResource EditableField}" TextWrapping="WrapWithOverflow" Height="50"/>
+            
+        </StackPanel>
+        <Button Click="OkBtn_Click" Content="OK" IsDefault="True" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="80" Height="30" Margin="15 0 15 0">
+            <e:Interaction.Triggers>
+                <e:EventTrigger EventName="Click">
+                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=AddNewPlanStep}"/>
+                </e:EventTrigger>
+            </e:Interaction.Triggers>
+        </Button>
+        <Button Click="CancelBtn_Click" Content="Отмена" IsCancel="True" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="80" Height="30" Margin="15 0 15 0"/>
+    </Grid>
+</Window>
