@@ -19,7 +19,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
 #if development
         private readonly string connectionString = @"Data Source=ILYAHOME\MYDB;Initial Catalog=TaskManager;MultipleActiveResultSets=True;Integrated Security=True";
 #else
-        private readonly string connectionString = @"Data Source=ILYAHOME\MYDB;Initial Catalog=TaskManager;Integrated Security=True"; //Place Connection String here
+        private readonly string connectionString = @"Data Source=a105512\a105512;Initial Catalog=TaskManagerRedesigned;MultipleActiveResultSets=true;Integrated Security=True"; //Place Connection String here
 #endif
         public SqlDataProvider()
         {
@@ -345,7 +345,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
                 RemoveTaskRecoursive(task.ChildTasks[0]);
                 task.ChildTasks.RemoveAt(0);
             }
-            
+            RemoveTasksPlansByTaskId(task.Id);
             RemoveTasksToAnalyticsByTaskId(task.Id);
             string sqlQuery = "Delete Tasks where id=@task";
             SqlCommand command = new SqlCommand(sqlQuery, connection);
@@ -357,6 +357,14 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
         private void RemoveTasksToAnalyticsByTaskId(int task_id)
         {
             string sqlQuery = "Delete TasksToAnalytics where task= @task;";
+            SqlCommand command = new SqlCommand(sqlQuery, connection);
+            command.Parameters.AddWithValue("@task", task_id);
+            command.ExecuteNonQuery();
+        }
+
+        private void RemoveTasksPlansByTaskId(int task_id)
+        {
+            string sqlQuery = "Delete TaskPlan where task= @task;";
             SqlCommand command = new SqlCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@task", task_id);
             command.ExecuteNonQuery();

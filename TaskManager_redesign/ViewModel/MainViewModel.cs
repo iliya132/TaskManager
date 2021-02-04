@@ -198,7 +198,6 @@ namespace TaskManager_redesign.ViewModel
             this.PropertyChanged += MainViewModel_PropertyChanged;
             AllTasks = new List<UserTask>(dataProvider.GetTasks());
             UserTasks = new ObservableCollection<UserTask>(AllTasks.Where(tsk => tsk.ParentTask == null));
-            UserTasks[0].IsHeader = true;
             SelectedItem = UserTasks.Count > 0 ? UserTasks[0] : null;
             Statuses = new List<Status>(dataProvider.GetStatuses());
             CurrentAnalytic = dataProvider.GetUser(Environment.UserName);

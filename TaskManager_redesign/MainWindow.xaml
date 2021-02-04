@@ -225,7 +225,7 @@
                                         </MenuItem>
                                     </ContextMenu>
                                 </Grid.ContextMenu>
-                                <TextBlock x:Name="ContentText" Style="{StaticResource regular-text}" Grid.Row="0" Grid.Column="0" TextWrapping="WrapWithOverflow" VerticalAlignment="Center" Text="{Binding Name}"/>
+                                <TextBlock x:Name="ContentText" Style="{StaticResource h3}" Grid.Row="0" Grid.Column="0" TextWrapping="WrapWithOverflow" VerticalAlignment="Center" Text="{Binding Name}"/>
                                 <Image Source="{Binding Status, Converter={StaticResource statusToIco}}" HorizontalAlignment="Right" Margin="5" Width="21"/>
                             </Grid>
                         </HierarchicalDataTemplate>
