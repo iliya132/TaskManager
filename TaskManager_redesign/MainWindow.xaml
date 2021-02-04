@@ -79,7 +79,6 @@
                                         </Trigger>
                                         <MultiDataTrigger>
                                             <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding IsHeader}" Value="False"/>
                                                 <Condition Binding="{Binding IsSelected}" Value="True"/>
                                             </MultiDataTrigger.Conditions>
                                             <Setter Property="Background" TargetName="contentGrid" Value="#E5E5E5"/>
@@ -88,7 +87,7 @@
                                             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
                                             
                                         </MultiDataTrigger>
-                                        <DataTrigger Binding="{Binding IsHeader}" Value="True">
+                                        <!--<DataTrigger Binding="{Binding IsHeader}" Value="True">
                                             <Setter Property="BorderBrush" TargetName="Bd" Value="transparent"/>
                                             <Setter Property="BorderThickness" TargetName="Bd" Value="0"/>
                                             <Setter Property="Background" TargetName="Bd" Value="transparent"/>
@@ -97,7 +96,7 @@
                                             <Setter Property="IsManipulationEnabled" TargetName="Bd" Value="False"/>
                                             <Setter Property="Visibility" TargetName="Expander" Value="Collapsed"/>
                                             <Setter Property="Foreground" Value="White"/>
-                                        </DataTrigger>
+                                        </DataTrigger>-->
                                         <Trigger Property="IsSelected" Value="true">
                                             
                                         </Trigger>
@@ -199,7 +198,7 @@
             <Grid Grid.Row="1" Name="TasksGrid">
                 <TreeView Name="TaskTree"
                           Drop="Bd_Drop"
-                          SelectedItemChanged="TaskTree_SelectedItemChanged"
+                          
                     ItemsSource="{Binding UserTasks}"
                     AllowDrop="True"
                     ItemContainerStyle="{StaticResource TreeViewItemStyle1}" 
@@ -226,7 +225,7 @@
                                         </MenuItem>
                                     </ContextMenu>
                                 </Grid.ContextMenu>
-                                <TextBlock x:Name="ContentText" Grid.Row="0" Grid.Column="0" Foreground="{Binding RelativeSource={RelativeSource TemplatedParent}}" TextWrapping="WrapWithOverflow" VerticalAlignment="Center" Text="{Binding Name}"/>
+                                <TextBlock x:Name="ContentText" Style="{StaticResource regular-text}" Grid.Row="0" Grid.Column="0" TextWrapping="WrapWithOverflow" VerticalAlignment="Center" Text="{Binding Name}"/>
                                 <Image Source="{Binding Status, Converter={StaticResource statusToIco}}" HorizontalAlignment="Right" Margin="5" Width="21"/>
                             </Grid>
                         </HierarchicalDataTemplate>

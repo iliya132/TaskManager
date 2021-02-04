@@ -180,19 +180,19 @@ namespace TaskManager_redesign
             window.ShowDialog();
         }
 
-        private void TaskTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            if (e.NewValue == null)
-                return;
-            UserTask oldTask = e.OldValue as UserTask;
-            UserTask ut = e.NewValue as UserTask;
-            if (ut.IsHeader)
-            {
-                ut.IsSelected = false;
-            }
+        //private void TaskTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        //{
+        //    if (e.NewValue == null)
+        //        return;
+        //    UserTask oldTask = e.OldValue as UserTask;
+        //    UserTask ut = e.NewValue as UserTask;
+        //    if (ut.IsHeader)
+        //    {
+        //        ut.IsSelected = false;
+        //    }
             
             
 
-        }
+        //}
     }
 }
