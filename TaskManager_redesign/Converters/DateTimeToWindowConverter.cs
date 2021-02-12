@@ -27,7 +27,16 @@ namespace TaskManager_redesign.Converters
             }
             else
             {
-                return System.Convert.ToDateTime(dateStr);
+                DateTime date;
+                try
+                {
+                    date = System.Convert.ToDateTime(dateStr);
+                }
+                catch
+                {
+                    date = DateTime.Now;
+                }
+                return date;
             }
         }
     }

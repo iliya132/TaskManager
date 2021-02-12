@@ -127,6 +127,18 @@ namespace TaskManager_redesign.ViewModel
                 return Visibility.Visible;
             }
         }
+
+        public Visibility AssignBtnVisibility
+        {
+            get
+            {
+                if(SelectedItem.CreatedBy.Id == CurrentAnalytic.Id)
+                {
+                    return Visibility.Visible;
+                }
+                return Visibility.Collapsed;
+            }
+        }
         #endregion
 
         #region currentValues
@@ -150,6 +162,7 @@ namespace TaskManager_redesign.ViewModel
                     _selectedItem = value;
                     RaisePropertyChanged(nameof(SelectedItem));
                     
+                    
                 }
                 
                 IsRedrawActive = false;
@@ -172,6 +185,7 @@ namespace TaskManager_redesign.ViewModel
         public TriggerCommand AddNewPlanStep { get; set; }
         public TriggerCommand<string> SetFilterState { get; set; }
         public TriggerCommand<(UserTask, UserTask)> DragNDrop { get; set; }
+        public TriggerCommand<TaskPlan> UpdatePlanDescription { get; set; }
         #endregion
 
         #region initialize MVVM
@@ -189,9 +203,10 @@ namespace TaskManager_redesign.ViewModel
             AddNewPlanStep = new TriggerCommand(HandleAddPlanStepAction);
             SetFilterState = new TriggerCommand<string>(HandleTaskFilterStateChanged);
             DragNDrop = new TriggerCommand<(UserTask, UserTask)>(HandleDragAndDropAction);
+            UpdatePlanDescription = new TriggerCommand<TaskPlan>(HandleTaskPlanUpdate);
         }
 
-
+        
 
         private void InitializeData()
         {
@@ -213,6 +228,7 @@ namespace TaskManager_redesign.ViewModel
             {
                 RaisePropertyChanged(nameof(FinishButtonVisibility));
                 RaisePropertyChanged(nameof(PropertiesVisibility));
+                RaisePropertyChanged(nameof(AssignBtnVisibility));
             }
         }
         #endregion
@@ -250,9 +266,6 @@ namespace TaskManager_redesign.ViewModel
                 string attributeValue = fieldInfo.GetCustomAttribute<ColumnAttribute>().Name;
                 object newValue = fieldInfo.GetValue(SelectedItem);
                 dataProvider.UpdateField(attributeValue, newValue, SelectedItem.Id);
-                Debug.WriteLine($"C# FieldName: {field}");
-                Debug.WriteLine($"SQL FieldName: {SelectedItem.GetAttributeFrom<ColumnAttribute>(field).Name}");
-                Debug.WriteLine($"newValue: {newValue}");
             }
         }
 
@@ -300,7 +313,6 @@ namespace TaskManager_redesign.ViewModel
             {
                 TaskToAnalytic tta = dataProvider.AddNewAssignedAnalytic(analytic, SelectedItem);
                 SelectedItem.AssignedTo.Add(tta);
-                RaisePropertyChanged(nameof(FinishButtonVisibility));
             }
             catch (SqlAlreadyFilledException)
             {
@@ -344,6 +356,7 @@ namespace TaskManager_redesign.ViewModel
             DateTime dueDate = apvm.DueDate;
             SelectedItem.TaskPlans.Add(dataProvider.AddPlanStep(SelectedItem, CurrentAnalytic, name, dueDate));
             dataProvider.OrderByDate(SelectedItem.TaskPlans);
+            apvm.Name = string.Empty;
         }
         
         private void HandlePlanChangedStatus(TaskPlan plan)
@@ -391,18 +404,23 @@ namespace TaskManager_redesign.ViewModel
 
         private void HandleDragAndDropAction((UserTask, UserTask) FromTo)
         {
-            //TODO реализовать сохранение задач в БД
             UserTask from = FromTo.Item1;
             UserTask to = FromTo.Item2;
-            if(to == null)
+            if(to != null && from != null && to.Id == from.Id)
             {
-                if (from.ParentTask != null)
-                {
-                    from.ParentTask.ChildTasks.Remove(from);
-                }
+                return;
+            }
+            if(to==null && from.ParentTask == null)
+            {
+                return;
+            }
+            if(to == null && from.ParentTask != null)
+            {
+                from.ParentTask.ChildTasks.Remove(from);
+                UserTasks.Add(from);
                 from.ParentTask = null;
                 from.ParentTaskId = null;
-                UserTasks.Add(from);
+                dataProvider.MoveChildTask(from, to);
                 return;
             }
             if (from.ContainChild(to))
@@ -422,7 +440,14 @@ namespace TaskManager_redesign.ViewModel
                     UserTasks.Remove(from);
                 }
                 from.ParentTask = to;
+                dataProvider.MoveChildTask(from, to);
             }
+            
+        }
+
+        private void HandleTaskPlanUpdate(TaskPlan plan)
+        {
+            dataProvider.UpdateTaskPlan(plan);
         }
         #endregion
     }

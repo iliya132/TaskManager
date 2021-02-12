@@ -19,7 +19,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
 #if development
         private readonly string connectionString = @"Data Source=ILYAHOME\MYDB;Initial Catalog=TaskManager;MultipleActiveResultSets=True;Integrated Security=True";
 #else
-        private readonly string connectionString = @"Data Source=a105512\a105512;Initial Catalog=TaskManagerRedesigned;MultipleActiveResultSets=true;Integrated Security=True"; //Place Connection String here
+        private readonly string connectionString = @"Data Source=a105512\a105512;Initial Catalog=TaskManagerRedesigned;MultipleActiveResultSets=true;Integrated Security=false; user id = TimeSheetuser; password=DK_user!"; //Place Connection String here
 #endif
         public SqlDataProvider()
         {
@@ -54,7 +54,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
         {
             List<UserTask> result = new List<UserTask>();
             
-            string query = "select id, created_at, due_date, created_by, awaited_result, description, status, parent_task, subject from Tasks;";
+            string query = "select id, created_at, due_date, created_by, awaited_result, description, status, parent_task, subject from Tasks order by subject;";
             SqlCommand getTasksCommand = new SqlCommand(query, connection);
             using (SqlDataReader reader = getTasksCommand.ExecuteReader())
             {
@@ -446,6 +446,32 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
             tempPlans = tempPlans.OrderBy(i => i.DueDate).ToList();
             collection.Clear();
             tempPlans.ForEach(collection.Add);
+        }
+
+        public void MoveChildTask(UserTask from, UserTask to)
+        {
+            string sqlQuery = "update Tasks set parent_task = @parentTask where id = @childTask;";
+            SqlCommand command = new SqlCommand(sqlQuery, connection);
+            command.Parameters.AddWithValue("@childTask", from.Id);
+            if (to == null)
+            {
+                command.Parameters.AddWithValue("@parentTask", DBNull.Value);
+
+            }
+            else
+            {
+                command.Parameters.AddWithValue("@parentTask", to.Id);
+            }
+            command.ExecuteNonQuery();
+        }
+
+        public void UpdateTaskPlan(TaskPlan plan)
+        {
+            string sqlQuery = "update TaskPlan set description = @description where id = @id;";
+            SqlCommand command = new SqlCommand(sqlQuery, connection);
+            command.Parameters.AddWithValue("@description", plan.Description);
+            command.Parameters.AddWithValue("@id", plan.Id);
+            command.ExecuteNonQuery();
         }
     }
 }

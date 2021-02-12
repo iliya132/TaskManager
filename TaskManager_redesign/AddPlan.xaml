@@ -28,7 +28,7 @@
                 <TextBlock Text="Дата завершения" Style="{StaticResource h3}"/>
             <DatePicker SelectedDate="{Binding Source={StaticResource AddPlanViewModel}, Path=DueDate}"/>
                 <TextBlock Text="Название шага" Style="{StaticResource h3}"/>
-                <TextBox BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Stretch" Text="{Binding Source={StaticResource AddPlanViewModel}, Path=Name}" Style="{StaticResource EditableField}" TextWrapping="WrapWithOverflow" Height="50"/>
+                <TextBox Name="InputTextBox" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Stretch" Text="{Binding Source={StaticResource AddPlanViewModel}, Path=Name, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Style="{StaticResource EditableField}" TextWrapping="WrapWithOverflow" Height="50"/>
             
         </StackPanel>
         <Button Click="OkBtn_Click" Content="OK" IsDefault="True" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="80" Height="30" Margin="15 0 15 0">

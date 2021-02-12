@@ -21,5 +21,7 @@ namespace TaskManager_redesign.Model.DataProviders.Interfaces
         void ChangePlanStatus(TaskPlan plan);
         void RemovePlan(TaskPlan plan);
         void OrderByDate(ObservableCollection<TaskPlan> collection);
+        void MoveChildTask(UserTask from, UserTask to);
+        void UpdateTaskPlan(TaskPlan plan);
     }
 }

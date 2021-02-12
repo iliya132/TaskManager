@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:TaskManager_redesign"
         mc:Ignorable="d"
         Height="200" Width="300" WindowStartupLocation="CenterOwner" ResizeMode="CanResize"
-        WindowStyle="ThreeDBorderWindow">
+        WindowStyle="ThreeDBorderWindow" Closing="Window_Closing">
     <Window.Resources>
         <ResourceDictionary >
             <ResourceDictionary.MergedDictionaries>

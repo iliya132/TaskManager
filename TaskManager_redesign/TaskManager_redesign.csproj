@@ -26,6 +26,7 @@
     <None Remove="res\dropdownClosed.png" />
     <None Remove="res\multiply.png" />
     <None Remove="res\plus.png" />
+    <None Remove="res\SplashTaskManager.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -66,6 +67,12 @@
 
   <ItemGroup>
     <Folder Include="Controls\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SplashScreen Include="res\SplashTaskManager.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </SplashScreen>
   </ItemGroup>
 
 </Project>

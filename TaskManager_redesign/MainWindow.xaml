@@ -23,6 +23,7 @@
                     <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
                     <converters:UserTaskToSelectionConverter x:Key="UserTaskToSelectionConverter"/>
                     <converters:TaskToBorderBrushConverter x:Key="TaskToBorderBrushConverter"/>
+                    <converters:IsTaskHasAssignedAnalytics x:Key="IsTaskHasAssignedAnalytics"/>
                 </ResourceDictionary>
                 <ResourceDictionary>
                     <Style x:Key="TreeViewItemStyle1" TargetType="{x:Type TreeViewItem}">
@@ -142,9 +143,10 @@
             <ColumnDefinition Width="360"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="112*"/>
+            <RowDefinition Height="112"/>
             <RowDefinition Height="900*"/>
         </Grid.RowDefinitions>
+        
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Name="Header">
             <StackPanel Orientation="Horizontal" >
                 <Image Source="/res/a-logo.png" Width="32.68" Height="49" VerticalAlignment="Center" Margin="25 35 0 23"/>
@@ -203,7 +205,7 @@
                     AllowDrop="True"
                     ItemContainerStyle="{StaticResource TreeViewItemStyle1}" 
                     HorizontalContentAlignment="Stretch" 
-                    Margin="12 0 21 12" 
+                    Margin="12 0 21 80" 
                     Loaded="TaskTree_Loaded"
                     Background="{x:Null}" BorderBrush="{x:Null}">
                     <e:Interaction.Triggers>
@@ -233,7 +235,7 @@
                 </TreeView>
                 <Grid >
                     <CheckBox HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="63 5" IsChecked="{Binding Source={StaticResource MainViewModel}, Path=IsCreateAsParentModeActive}">
-                        <TextBlock Text="Создать без привязки к родительской задаче" Style="{StaticResource regular-text}" Foreground="#FFFFFEFE"/>
+                        <TextBlock Text="Создать родительскую задачу" Style="{StaticResource regular-text}" Foreground="#FFFFFEFE"/>
                     </CheckBox>
                     <TextBox x:Name="AddNewTaskField" Style="{StaticResource placeHolder}" KeyDown="AddNewTaskField_KeyDown" Tag="+ Добавить задачу" VerticalAlignment="Bottom" Height="34" VerticalContentAlignment="Center" Margin="63 25">
                         <e:Interaction.Triggers>
@@ -246,13 +248,18 @@
                 </Grid>
                 
             </Grid>
+            
         </Grid>
+        <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Width="5" ShowsPreview="False"/>
         <Grid Grid.Column="2" Grid.Row="0" Grid.RowSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="981*"/>
-                <RowDefinition Height="50*"/>
+                <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
-            <StackPanel Name="PropertiesStackPanel" Visibility="{Binding Source={StaticResource MainViewModel}, Path=PropertiesVisibility}">
+            <Grid>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Name="PropertiesStackPanel" Visibility="{Binding Source={StaticResource MainViewModel}, Path=PropertiesVisibility}">
                 <Grid Background="{DynamicResource MainUserControl}" Margin="9 4">
                     <Border BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1" CornerRadius="2"/>
                     <StackPanel>
@@ -287,9 +294,10 @@
                     <StackPanel>
                         <TextBlock Text="Ответственные" Style="{StaticResource h3}" Margin="8 12 8 10"/>
                         <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
-                        <ListView BorderBrush="{x:Null}" BorderThickness="0" IsEnabled="True" ItemsSource="{Binding ElementName=TaskTree, Path=SelectedItem.AssignedTo}" Style="{StaticResource EmployeeList}" ItemContainerStyle="{StaticResource EmployeeListViewItem}">
+                                <TextBlock Style="{StaticResource regular-text}" Text="Эта задача еще никому не назначена" Margin="5" Visibility="{Binding ElementName=TaskTree, Path=SelectedItem, Converter={StaticResource IsTaskHasAssignedAnalytics}}"/>
+                                <ListView BorderBrush="{x:Null}" BorderThickness="0" IsEnabled="True" ItemsSource="{Binding ElementName=TaskTree, Path=SelectedItem.AssignedTo}" Style="{StaticResource EmployeeList}" ItemContainerStyle="{StaticResource EmployeeListViewItem}">
                         </ListView>
-                        <Button Margin="10 5" Height="25" Style="{StaticResource AddEmployeeButton}" Click="AddAssignedAnalyticBtn_Click" HorizontalContentAlignment="Left"  BorderBrush="{x:Null}" BorderThickness="0">
+                        <Button Margin="10 5" Height="25" Style="{StaticResource AddEmployeeButton}" Click="AddAssignedAnalyticBtn_Click" HorizontalContentAlignment="Left"  BorderBrush="{x:Null}" BorderThickness="0" Visibility="{Binding AssignBtnVisibility}">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/res/adduser.png" Width="21" Height="21" Margin="0 0 5 0"/>
                                 <TextBlock Text="Добавить ответственного" VerticalAlignment="Center"/>
@@ -297,18 +305,18 @@
                         </Button>
                     </StackPanel>
                 </Grid>
-                <Grid Background="{DynamicResource MainUserControl}" Margin="9 4" Width="341">
+                <Grid Background="{DynamicResource MainUserControl}" Margin="9 4">
                     <Border BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1" CornerRadius="2"/>
                     <StackPanel>
                         <TextBlock Text="Срок:" Style="{StaticResource h3}" Margin="8 12 8 10" VerticalAlignment="Center"/>
                         <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
-                        <TextBox KeyDown="TextBox_KeyDown" Text="{Binding ElementName=TaskTree, Path=SelectedItem.DueDate, Converter={StaticResource DateToStr}, StringFormat={}{0:dd.MM.yyyy}}" Style="{StaticResource placeHolder}" Tag="Укажите срок исполнения задачи" Padding="8 8 8 12" MinWidth="150" VerticalAlignment="Center">
-                            <e:Interaction.Triggers>
-                                <e:EventTrigger EventName="LostFocus">
-                                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=FieldUpdated}" CommandParameter="DueDate"/>
-                                </e:EventTrigger>
-                            </e:Interaction.Triggers>
-                        </TextBox>
+                                <DatePicker HorizontalContentAlignment="Left" SelectedDate="{Binding ElementName=TaskTree, Path=SelectedItem.DueDate}" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DatePickerStyle}">
+                                    <e:Interaction.Triggers>
+                                        <e:EventTrigger EventName="SelectedDateChanged">
+                                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=FieldUpdated}" CommandParameter="DueDate" />
+                                        </e:EventTrigger>
+                                    </e:Interaction.Triggers>
+                                </DatePicker>
                     </StackPanel>
                 </Grid>
                 <Grid Background="{DynamicResource MainUserControl}" Margin="9 4" Name="AwaitedResultBlock">
@@ -316,7 +324,7 @@
                     <StackPanel>
                         <TextBlock Text="Ожидаемый результат" Style="{StaticResource h3}" Margin="8 12 8 10"/>
                         <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
-                        <TextBox KeyDown="TextBox_KeyDown" Text="{Binding ElementName=TaskTree, Path=SelectedItem.AwaitedResult}" Tag="Введите ожидаемый результат" TextWrapping="WrapWithOverflow" Style="{StaticResource placeHolder}" Padding="8 8 8 12">
+                        <TextBox KeyDown="TextBox_KeyDown" Text="{Binding ElementName=TaskTree, Path=SelectedItem.AwaitedResult}" Tag="Введите ожидаемый результат" AcceptsReturn="False" TextWrapping="Wrap" Style="{StaticResource placeHolder}" Padding="8 8 8 12">
                             <e:Interaction.Triggers>
                                 <e:EventTrigger EventName="LostFocus">
                                     <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=FieldUpdated}" CommandParameter="AwaitedResult"/>
@@ -344,7 +352,7 @@
                     <StackPanel>
                         <TextBlock Text="План реализации" Style="{StaticResource h3}" Margin="8 12 8 10"/>
                         <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
-                        <ListView Style="{StaticResource PlansList}" ItemsSource="{Binding ElementName=TaskTree, Path=SelectedItem.TaskPlans}">
+                        <ListView Style="{StaticResource PlansList}" ItemsSource="{Binding ElementName=TaskTree, Path=SelectedItem.TaskPlans}" ScrollViewer.CanContentScroll="False">
                         </ListView>
                         <Button Click="AddPlanStepBtn_Click" Style="{StaticResource MenuButton}" HorizontalContentAlignment="Left" Margin="10" Padding="10 10 10 20" BorderBrush="{x:Null}" BorderThickness="0">
                             <StackPanel Orientation="Horizontal">
@@ -355,6 +363,8 @@
                     </StackPanel>
                 </Grid>
             </StackPanel>
+                </ScrollViewer>
+            </Grid>
             <Button Visibility="{Binding Source={StaticResource MainViewModel}, Path=FinishButtonVisibility}" Grid.Row="1" Style="{StaticResource MenuButton}" Click="AddBtn_Click" BorderBrush="{DynamicResource MainUserControl.Border}" HorizontalContentAlignment="Left" >
                 <TextBlock Text="Отметить как завершенную" Margin="10 0" Style="{StaticResource h3}"/>
 

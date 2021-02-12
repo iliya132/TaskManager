@@ -25,11 +25,14 @@ namespace TaskManager_redesign
         private void OkBtn_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
+            Close();
         }
 
         private void CancelBtn_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = false;
+            Close();
         }
+
     }
 }

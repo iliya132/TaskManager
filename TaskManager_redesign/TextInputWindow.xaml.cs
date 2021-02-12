@@ -33,5 +33,11 @@ namespace TaskManager_redesign
             this.DialogResult = false;
             this.Close();
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            inputTextBox.Clear();
+
+        }
     }
 }
