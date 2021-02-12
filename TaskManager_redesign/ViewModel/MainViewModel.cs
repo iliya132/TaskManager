@@ -52,6 +52,7 @@ namespace TaskManager_redesign.ViewModel
         public List<UserTask> AllTasks { get; set; } = new List<UserTask>();
         public ObservableCollection<UserTask> UserTasks { get; set; }
         public List<Status> Statuses { get; set; }
+        public Dictionary<int, List<Analytic>> AnalyticsAtStructures;
         #endregion
 
         #region Data collections methods
@@ -98,7 +99,8 @@ namespace TaskManager_redesign.ViewModel
         {
             AllTasks,
             AssignedToMe,
-            ReportedByMe
+            ReportedByMe,
+            MyStructure
         }
         public TaskFilter CurrentTaskFilter { get; set; } = TaskFilter.AllTasks;
         #endregion
@@ -139,6 +141,8 @@ namespace TaskManager_redesign.ViewModel
                 return Visibility.Collapsed;
             }
         }
+
+        public string CurrentViewName { get; set; } = "Все задачи";
         #endregion
 
         #region currentValues
@@ -186,6 +190,7 @@ namespace TaskManager_redesign.ViewModel
         public TriggerCommand<string> SetFilterState { get; set; }
         public TriggerCommand<(UserTask, UserTask)> DragNDrop { get; set; }
         public TriggerCommand<TaskPlan> UpdatePlanDescription { get; set; }
+        public TriggerCommand<string> ChangeStructureFilter { get; set; }
         #endregion
 
         #region initialize MVVM
@@ -204,6 +209,7 @@ namespace TaskManager_redesign.ViewModel
             SetFilterState = new TriggerCommand<string>(HandleTaskFilterStateChanged);
             DragNDrop = new TriggerCommand<(UserTask, UserTask)>(HandleDragAndDropAction);
             UpdatePlanDescription = new TriggerCommand<TaskPlan>(HandleTaskPlanUpdate);
+            ChangeStructureFilter = new TriggerCommand<string>(HandleStructFilterChanged);
         }
 
         
@@ -216,6 +222,7 @@ namespace TaskManager_redesign.ViewModel
             SelectedItem = UserTasks.Count > 0 ? UserTasks[0] : null;
             Statuses = new List<Status>(dataProvider.GetStatuses());
             CurrentAnalytic = dataProvider.GetUser(Environment.UserName);
+            AnalyticsAtStructures = dataProvider.GenerateAnalyticsTostructures();
         }
         private void InitializeViewModels()
         {
@@ -371,18 +378,36 @@ namespace TaskManager_redesign.ViewModel
 
         private void HandleTaskFilterStateChanged(string newState)
         {
-            bool IsFilterUnchanged = CurrentTaskFilter.ToString().Equals(newState);
-            
+            bool IsFilterUnchanged = CurrentTaskFilter.ToString().Equals(newState) && !newState.Equals("MyStructure");
+
+
             if (!IsFilterUnchanged)
             {
                 CurrentTaskFilter = (TaskFilter)Enum.Parse(typeof(TaskFilter), newState);
                 UpdateTaskCollection();
+                switch (newState)
+                {
+                    case ("AllTasks"):
+                        CurrentViewName = "Все задачи";
+                        break;
+                    case ("AssignedToMe"):
+                        CurrentViewName = "Задачи назначенные мне";
+                        break;
+                    case ("ReportedByMe"):
+                        CurrentViewName = "Задачи инициированные мной";
+                        break;
+                    case ("MyStructure"):
+                        CurrentViewName = "Фильтр по подразделению";
+                        break;
+                }
+                RaisePropertyChanged(nameof(CurrentViewName));
             }
         }
 
         private void UpdateTaskCollection()
         {
             List<UserTask> newValues = new List<UserTask>();
+            #region фильтр по общему пулу задач
             switch (CurrentTaskFilter)
             {
                 case (TaskFilter.AllTasks):
@@ -394,7 +419,13 @@ namespace TaskManager_redesign.ViewModel
                 case (TaskFilter.ReportedByMe):
                     AllTasks.Where(i => i.CreatedById == CurrentAnalytic.Id).ToList().ForEach(newValues.Add);
                     break;
+                case (TaskFilter.MyStructure):
+                    AllTasks.Where(i => i.AssignedTo.Select(j => j.Analytic).
+                    Any(k => currentFilterAnalyticsSet.Any(m => m.Id == k.Id))).
+                ToList().ForEach(newValues.Add);
+                    break;
             }
+            #endregion
             UserTasks.Clear();
             foreach(UserTask task in newValues)
             {
@@ -448,6 +479,41 @@ namespace TaskManager_redesign.ViewModel
         private void HandleTaskPlanUpdate(TaskPlan plan)
         {
             dataProvider.UpdateTaskPlan(plan);
+        }
+
+        readonly List<int> StructuresFiltered = new List<int>();
+
+        private void HandleStructFilterChanged(string structureID)
+        {
+            int stuctId = Convert.ToInt32(structureID);
+            if (StructuresFiltered.Contains(stuctId))
+            {
+                StructuresFiltered.Remove(stuctId);
+            }
+            else
+            {
+                StructuresFiltered.Add(stuctId);
+            }
+            ApplyStructureFilter();
+        }
+
+        List<Analytic> currentFilterAnalyticsSet = new List<Analytic>();
+        private void ApplyStructureFilter()
+        {
+            currentFilterAnalyticsSet.Clear();
+            if (StructuresFiltered.Count == 0)
+            {
+                HandleTaskFilterStateChanged("AllTasks");
+            }
+            else
+            {
+                foreach (int i in StructuresFiltered)
+                {
+                    currentFilterAnalyticsSet.AddRange(AnalyticsAtStructures.Single(j => j.Key == i).Value);
+                }
+                HandleTaskFilterStateChanged("MyStructure");
+            }
+            
         }
         #endregion
     }

@@ -1,0 +1,248 @@
+﻿<UserControl x:Class="TaskManager_redesign.Controls.StructuresSelector"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TaskManager_redesign.Controls"
+             mc:Ignorable="d" 
+             xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
+             d:DesignHeight="450" d:DesignWidth="300" DataContext="{Binding Source={StaticResource MainViewModel}}">
+    <UserControl.Resources>
+        <Style x:Key="BtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource MainUserControl.SubControl}"/>
+            <Setter Property="BorderBrush" Value="#FF878787"/>
+            <Setter Property="BorderThickness" Value="0 0 0 1"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="FontFamily" Value="Styrene A LC"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="FontSize" Value="14px"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="5"/>
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="Pressed">
+                    <Setter Property="Background" Value="#FF90B87E"/>
+                    
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <Grid Background="{DynamicResource MainUserControl.SubControl}">
+        <StackPanel>
+            <Button Name="DFMBtn" Click="DFMBtn_Click" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                <StackPanel Orientation="Horizontal" >
+                    <Image Name="dfmDropDownImg" Source="/res/dropdown2.png" Width="15" Height="15" Margin="0 0 0 0" VerticalAlignment="Center"/>
+                    <TextBlock Text="ДФМ" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                </StackPanel>
+                
+            </Button>
+            
+                <StackPanel Name="DFM_DropDown" Visibility="Collapsed">
+                
+                <Button Name="DFMHeadBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="Руководство" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="1"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button Name="OMOBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                        <TextBlock Text="ОМО" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="2"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button Name="ONTIBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="ОНТИЭ" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="3"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button Name="OSRTKDBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="ОСРТКД" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="4"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button Name="UKKOBtn" Click="UKKOBtn_Click" HorizontalContentAlignment="Left" Margin="15 0 0 0" Style="{StaticResource BtnStyle}">
+                    <StackPanel Orientation="Horizontal" >
+                        <Image Name="UkkoDropDownImg" Source="/res/dropdown2.png" Width="15" Height="15" Margin="0 0 0 0" VerticalAlignment="Center"/>
+                        <TextBlock Text="УККО" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <StackPanel Name="UKKO_DropDown" Visibility="Collapsed">
+                    <Button Name="UKKOHeadBtn" Click="SelectorBtnClick" Margin="30 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                        <TextBlock Text="Руководство" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                        <e:Interaction.Triggers>
+                            <e:EventTrigger EventName="Click">
+                                <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="5"/>
+                            </e:EventTrigger>
+                        </e:Interaction.Triggers>
+                    </Button>
+                    <Button Name="OKOFLBtn" Click="SelectorBtnClick" Margin="30 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                        <TextBlock Text="ОКОФЛ" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                        <e:Interaction.Triggers>
+                            <e:EventTrigger EventName="Click">
+                                <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="6"/>
+                            </e:EventTrigger>
+                        </e:Interaction.Triggers>
+                    </Button>
+                    <Button Name="OFMABtn" Click="SelectorBtnClick" Margin="30 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                        <TextBlock Text="ОСРТКД" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                        <e:Interaction.Triggers>
+                            <e:EventTrigger EventName="Click">
+                                <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="7"/>
+                            </e:EventTrigger>
+                        </e:Interaction.Triggers>
+                    </Button>
+                </StackPanel>
+                <Button Name="UOKIOBtn" Click="UOKIOBtn_Click" HorizontalContentAlignment="Left" Margin="15 0 0 0" Style="{StaticResource BtnStyle}">
+                    <StackPanel Orientation="Horizontal" >
+                        <Image Name="UOKIOImg" Source="/res/dropdown2.png" Width="15" Height="15" Margin="0 0 0 0" VerticalAlignment="Center"/>
+                        <TextBlock Text="УОКИО" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <StackPanel Name="UOKIO_DropDown" Visibility="Collapsed">
+                    <Button Name="UOKIOHeadBtn" Click="SelectorBtnClick" Margin="30 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                        <TextBlock Text="Руководство" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                        <e:Interaction.Triggers>
+                            <e:EventTrigger EventName="Click">
+                                <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="8"/>
+                            </e:EventTrigger>
+                        </e:Interaction.Triggers>
+                    </Button>
+                    <Button Name="OSMVUBtn" Click="SelectorBtnClick" Margin="30 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                        <TextBlock Text="ОСВМВУО" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                        <e:Interaction.Triggers>
+                            <e:EventTrigger EventName="Click">
+                                <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="9"/>
+                            </e:EventTrigger>
+                        </e:Interaction.Triggers>
+                    </Button>
+                    <Button Name="OFKO" Click="SelectorBtnClick" Margin="30 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                        <TextBlock Text="ОФКО" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                        <e:Interaction.Triggers>
+                            <e:EventTrigger EventName="Click">
+                                <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="10"/>
+                            </e:EventTrigger>
+                        </e:Interaction.Triggers>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+            
+            
+            <Button Name="ORPPABtn" Click="SelectorBtnClick" Margin="0 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                <TextBlock Text="ОРППА" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                <e:Interaction.Triggers>
+                    <e:EventTrigger EventName="Click">
+                        <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="11"/>
+                    </e:EventTrigger>
+                </e:Interaction.Triggers>
+            </Button>
+            <Button Name="UKPBPBtn" Click="UKPBPBtn_Click" HorizontalContentAlignment="Left" Margin="0 0 0 0" Style="{StaticResource BtnStyle}">
+                <StackPanel Orientation="Horizontal" >
+                    <Image Name="UKPBPImg" Source="/res/dropdown2.png" Width="15" Height="15" Margin="0 0 0 0" VerticalAlignment="Center"/>
+                    <TextBlock Text="УОКИО" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+            <StackPanel Name="UKPBP_DropDown" Visibility="Collapsed">
+                <Button Name="UKPBPHeadBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="Руководство" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="12"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button Name="OKBPBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="ОКЭБП" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="13"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button Name="OURKDBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="ОУРКД" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="14"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+            </StackPanel>
+
+            <Button Name="UMKBtn" Click="UMKBtn_Click" HorizontalContentAlignment="Left" Margin="0 0 0 0" Style="{StaticResource BtnStyle}">
+                <StackPanel Orientation="Horizontal" >
+                    <Image Name="UMKImg" Source="/res/dropdown2.png" Width="15" Height="15" Margin="0 0 0 0" VerticalAlignment="Center"/>
+                    <TextBlock Text="УМК" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+            <StackPanel Name="UMK_DropDown" Visibility="Collapsed">
+                <Button Name="UMKHeadBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="Руководство" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="15"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button Name="OKVOBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="ОКВО" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="16"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button Name="OMKBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="ОМК" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="17"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+            </StackPanel>
+            <Button Name="USPBtn" Click="USPBtn_Click" HorizontalContentAlignment="Left" Margin="0 0 0 0" Style="{StaticResource BtnStyle}">
+                <StackPanel Orientation="Horizontal" >
+                    <Image Name="USPImg" Source="/res/dropdown2.png" Width="15" Height="15" Margin="0 0 0 0" VerticalAlignment="Center"/>
+                    <TextBlock Text="УСП" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+            <StackPanel Name="USP_DropDown" Visibility="Collapsed">
+                <Button Name="USPHeadBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="Руководство" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="18"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button Name="ORINRBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="ОРИНР" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="19"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button Name="OEKOBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="ОЭКО" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="20"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+        
+</UserControl>

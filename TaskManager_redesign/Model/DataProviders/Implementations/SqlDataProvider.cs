@@ -473,5 +473,63 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
             command.Parameters.AddWithValue("@id", plan.Id);
             command.ExecuteNonQuery();
         }
+
+        private const int DFM_DIRECTION_ID = 1;
+        private const int ABSENT_DIRECTION_ID = 2;
+        private const int UKPBP_UPRAVLENIE = 1;
+        private const int UMK_UPRAVLENIE = 2;
+        private const int USP_UPRAVLENIE = 3;
+        private const int UOKIO_UPRAVLENIE = 4;
+        private const int UKKO_UPRAVLENIE = 5;
+        private const int ABSENT_UPRAVLENIE = 6;
+        private const int ORPPA_OTDEL = 1;
+        private const int OMK_OTDEL = 2;
+        private const int ORINR_OTDEL = 3;
+        private const int OEKO_OTDEL = 4;
+        private const int OKVO_OTDEL = 5;
+        private const int OKPBP_OTDEL = 6;
+        private const int OSRTKD_OTDEL = 7;
+        private const int OURKD_OTDEL = 8;
+        private const int ONTIE_OTDEL = 9;
+        private const int SFM_ROSTOV_OTDEL = 10;
+        private const int SFM_NOVOSIBIRSK_OTDEL = 11;
+        private const int OFKO_OTDEL = 12;
+        private const int OFMA_OTDEL = 13;
+        private const int OKOFL_OTDEL = 14;
+        private const int OSMVUO_OTDEL = 15;
+        private const int SFM_HABAROVSK_OTDEL = 16;
+        private const int SFM_OMSK_OTDEL = 17;
+        private const int OSRTKDFL_OTDEL = 18;
+        private const int ABSENT_OTDEL = 19;
+        private const int SFM_SPB_OTDEL = 20;
+        private const int OMO_OTDEL = 43;
+
+
+        public Dictionary<int, List<Analytic>> GenerateAnalyticsTostructures()
+        {
+            Dictionary<int, List<Analytic>> result = new Dictionary<int, List<Analytic>>();
+            result.Add(1, Analytics.Where(i => i.DirectionId == DFM_DIRECTION_ID && i.UpravlenieId == ABSENT_UPRAVLENIE && i.OtdelId == ABSENT_OTDEL).ToList()); //Руководство ДФМ
+            result.Add(2, Analytics.Where(i => i.OtdelId == OMO_OTDEL).ToList());
+            result.Add(3, Analytics.Where(i => i.OtdelId == ONTIE_OTDEL).ToList());
+            result.Add(4, Analytics.Where(i => i.OtdelId == OSRTKDFL_OTDEL || i.OtdelId == OSRTKD_OTDEL).ToList()); 
+            result.Add(5, Analytics.Where(i => i.UpravlenieId == UKKO_UPRAVLENIE && i.OtdelId == ABSENT_OTDEL).ToList()); //Руководство УККО
+            result.Add(6, Analytics.Where(i => i.OtdelId == OKOFL_OTDEL).ToList());
+            result.Add(7, Analytics.Where(i => i.OtdelId == OFMA_OTDEL).ToList());
+            result.Add(8, Analytics.Where(i => i.UpravlenieId == UOKIO_UPRAVLENIE && i.OtdelId == ABSENT_OTDEL).ToList()); //Руководство УОКИО
+            result.Add(9, Analytics.Where(i => i.OtdelId == OSMVUO_OTDEL).ToList());
+            result.Add(10, Analytics.Where(i => i.OtdelId == OFKO_OTDEL).ToList());
+            result.Add(11, Analytics.Where(i => i.OtdelId == ORPPA_OTDEL).ToList());
+            result.Add(12, Analytics.Where(i => i.UpravlenieId == UKPBP_UPRAVLENIE && i.OtdelId == ABSENT_OTDEL).ToList()); //Руководство УКПБП
+            result.Add(13, Analytics.Where(i => i.OtdelId == OKPBP_OTDEL).ToList());
+            result.Add(14, Analytics.Where(i => i.OtdelId == OURKD_OTDEL).ToList());
+            result.Add(15, Analytics.Where(i => i.UpravlenieId == UMK_UPRAVLENIE && i.OtdelId == ABSENT_OTDEL).ToList()); //Руководство УМК
+            result.Add(16, Analytics.Where(i => i.OtdelId == OKVO_OTDEL).ToList());
+            result.Add(17, Analytics.Where(i => i.OtdelId == OMK_OTDEL).ToList());
+            result.Add(18, Analytics.Where(i => i.UpravlenieId == USP_UPRAVLENIE && i.OtdelId == ABSENT_OTDEL).ToList()); //Руководство УСП
+            result.Add(19, Analytics.Where(i => i.OtdelId == ORINR_OTDEL).ToList());
+            result.Add(20, Analytics.Where(i => i.OtdelId == OEKO_OTDEL).ToList());
+            result.Add(-1, Analytics);
+            return result;
+        }
     }
 }

@@ -23,5 +23,6 @@ namespace TaskManager_redesign.Model.DataProviders.Interfaces
         void OrderByDate(ObservableCollection<TaskPlan> collection);
         void MoveChildTask(UserTask from, UserTask to);
         void UpdateTaskPlan(TaskPlan plan);
+        Dictionary<int, List<Analytic>> GenerateAnalyticsTostructures();
     }
 }

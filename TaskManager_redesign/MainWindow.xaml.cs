@@ -24,6 +24,7 @@ namespace TaskManager_redesign
     public partial class MainWindow : Window
     {
         private bool IsExportSubMenuOpened { get; set; } = false;
+        private bool IsStructureSubMenuOpened { get; set; } = false;
         const string DROP_DOWN_CLOSED = @"res\dropdown2.png";
         const string DROP_DOWN_OPENED = @"res\dropdown.png";
         public MainWindow()
@@ -46,6 +47,24 @@ namespace TaskManager_redesign
 
                 ExportSubMenu.Visibility = Visibility.Visible;
                 IsExportSubMenuOpened = true;
+            }
+        }
+
+        private void OpenCloseStructureSubMenu(object sender, RoutedEventArgs e)
+        {
+            if (IsStructureSubMenuOpened)
+            {
+                StructureDropDownImg.Source = new BitmapImage(new Uri(DROP_DOWN_CLOSED, UriKind.Relative));
+                StructureSubMenu.Visibility = Visibility.Collapsed;
+                IsStructureSubMenuOpened = false;
+            }
+            else
+            {
+
+                StructureDropDownImg.Source = new BitmapImage(new Uri(DROP_DOWN_OPENED, UriKind.Relative));
+
+                StructureSubMenu.Visibility = Visibility.Visible;
+                IsStructureSubMenuOpened = true;
             }
         }
 

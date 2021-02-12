@@ -678,6 +678,9 @@
             </Setter.Value>
         </Setter>
     </Style>
+    
+    
+    
     <Color x:Key="WindowColor">#FFE8EDF9</Color>
     <Color x:Key="ContentAreaColorLight">#FFC5CBF9</Color>
     <Color x:Key="ContentAreaColorDark">#FF7381F9</Color>

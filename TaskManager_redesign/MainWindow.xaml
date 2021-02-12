@@ -10,6 +10,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="1024" Width="1440" WindowState="Maximized" 
         xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:controls="clr-namespace:TaskManager_redesign.Controls"
         UseLayoutRounding="True" DataContext="{Binding Source={StaticResource MainViewModel}}">
 
     <Window.Resources>
@@ -131,6 +132,7 @@
                                 </DataTrigger>
                         </Style.Triggers>
                     </Style>
+                    
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -176,6 +178,19 @@
                         </e:EventTrigger>
                     </e:Interaction.Triggers>
                 </Button>
+
+                <Button  Style="{StaticResource MenuButton}" Click="OpenCloseStructureSubMenu" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
+                    <StackPanel Orientation="Horizontal" >
+                        <Image Name="StructureDropDownImg" Source="/res/dropdown2.png" Width="15" Height="15" Margin="0 0 0 0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Подразделения" TextWrapping="Wrap" MaxWidth="200" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                
+                <StackPanel x:Name="StructureSubMenu" Visibility="Collapsed">
+                    <controls:StructuresSelector/>
+                </StackPanel>
+                
                 <Button  Style="{StaticResource MenuButton}" Click="OpenCloseExportSubMenu" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
                     <StackPanel Orientation="Horizontal" >
                         <Image Name="dropDownImg" Source="/res/dropdown2.png" Width="15" Height="15" Margin="0 0 0 0" VerticalAlignment="Center"/>
@@ -195,7 +210,7 @@
                 <RowDefinition Height="834*"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
-                <TextBlock Text="Все задачи" Name="CanvasTitle" Style="{StaticResource Canvas-Title-h2}" Margin="23 16 0 0"/>
+                <TextBlock Text="{Binding CurrentViewName}" Name="CanvasTitle" Style="{StaticResource Canvas-Title-h2}" Margin="23 16 0 0"/>
             </Grid>
             <Grid Grid.Row="1" Name="TasksGrid">
                 <TreeView Name="TaskTree"
