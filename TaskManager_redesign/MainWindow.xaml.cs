@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using TaskManager_redesign.Model;
+using TaskManager_redesign.Services;
 using TaskManager_redesign.ViewModel;
 
 namespace TaskManager_redesign
@@ -199,6 +200,16 @@ namespace TaskManager_redesign
             window.ShowDialog();
         }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            UpdateService.CheckForUpdate();
+        }
+
         //private void TaskTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         //{
         //    if (e.NewValue == null)
@@ -209,8 +220,8 @@ namespace TaskManager_redesign
         //    {
         //        ut.IsSelected = false;
         //    }
-            
-            
+
+
 
         //}
     }

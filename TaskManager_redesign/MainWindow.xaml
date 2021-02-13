@@ -11,7 +11,7 @@
         Title="MainWindow" Height="1024" Width="1440" WindowState="Maximized" 
         xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:controls="clr-namespace:TaskManager_redesign.Controls"
-        UseLayoutRounding="True" DataContext="{Binding Source={StaticResource MainViewModel}}">
+        UseLayoutRounding="True" DataContext="{Binding Source={StaticResource MainViewModel}}" Loaded="Window_Loaded" Activated="Window_Activated">
 
     <Window.Resources>
         <ResourceDictionary >
