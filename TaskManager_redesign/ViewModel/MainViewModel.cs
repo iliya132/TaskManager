@@ -191,6 +191,7 @@ namespace TaskManager_redesign.ViewModel
         public TriggerCommand<(UserTask, UserTask)> DragNDrop { get; set; }
         public TriggerCommand<TaskPlan> UpdatePlanDescription { get; set; }
         public TriggerCommand<string> ChangeStructureFilter { get; set; }
+        public TriggerCommand TreeReportCommand { get; set; }
         #endregion
 
         #region initialize MVVM
@@ -210,9 +211,23 @@ namespace TaskManager_redesign.ViewModel
             DragNDrop = new TriggerCommand<(UserTask, UserTask)>(HandleDragAndDropAction);
             UpdatePlanDescription = new TriggerCommand<TaskPlan>(HandleTaskPlanUpdate);
             ChangeStructureFilter = new TriggerCommand<string>(HandleStructFilterChanged);
+            TreeReportCommand = new TriggerCommand(HandleTreeReport);
         }
 
-        
+        private void HandleTreeReport()
+        {
+            IReport report = new QuarterReport();
+            System.Data.DataTable reportResult = report.LoadData(AllTasks);
+            IExporter exporter = new ExcelExporter();
+            string reportFileName = exporter.Export(reportResult);
+            //TODO вынести запуск процесса в другое место
+            Process proc = new Process();
+            proc.StartInfo = new ProcessStartInfo(reportFileName)
+            {
+                UseShellExecute = true
+            };
+            proc.Start();
+        }
 
         private void InitializeData()
         {
@@ -243,9 +258,12 @@ namespace TaskManager_redesign.ViewModel
         #region Commands implementations
         private void HandleDeleteCommandAction(TaskToAnalytic obj)
         {
-            dataProvider.DeleteAssignedAnalytic(obj);
-            SelectedItem.AssignedTo.Remove(obj);
-            RaisePropertyChanged(nameof(FinishButtonVisibility));
+            if(MessageBox.Show("Вы уверены что хотите удалить ответственного?", "Вопрос", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                dataProvider.DeleteAssignedAnalytic(obj);
+                SelectedItem.AssignedTo.Remove(obj);
+                RaisePropertyChanged(nameof(FinishButtonVisibility));
+            }
         }
 
         private void HandleFinishCommandAction(string comment)
@@ -284,6 +302,7 @@ namespace TaskManager_redesign.ViewModel
             }
             SelectedItemChangedCodeBehind = true;
             UserTask oldTask = SelectedItem;
+            DateTime createdDT = DateTime.Now;
             UserTask newTask = new UserTask
             {
                 Name = newTaskSubject,
@@ -291,8 +310,9 @@ namespace TaskManager_redesign.ViewModel
                 AwaitedResult = string.Empty,
                 TaskDescription = string.Empty,
                 CreatedById = CurrentAnalytic.Id,
-                CreatedAt = DateTime.Now,
-                DueDate = DateTime.Now,
+                CreatedAt = createdDT,
+                DueDate = createdDT,
+                StartDate = createdDT,
                 Status = Statuses.Single(i => i.Name.Equals("В работе")),
                 StatusId = Statuses.Single(i => i.Name.Equals("В работе")).Id
             };
@@ -337,7 +357,15 @@ namespace TaskManager_redesign.ViewModel
             if(task.ChildTasks.Count > 0)
             {
                 MessageBoxResult boxResult = MessageBox.Show("Удаляемая задача содержит подзадачи. Они будут удалены вместе с удаляемой задачей!\r\nВы уверены что хотите продолжить?", "Предупреждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (boxResult != MessageBoxResult.Yes)
+                if (boxResult == MessageBoxResult.No)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                MessageBoxResult boxResult = MessageBox.Show($"Вы собираетесь удалить задачу {task.Name}\r\nУверены что хотите продолжить?", "Предупреждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (boxResult == MessageBoxResult.No)
                 {
                     return;
                 }

@@ -54,7 +54,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
         {
             List<UserTask> result = new List<UserTask>();
             
-            string query = "select id, created_at, due_date, created_by, awaited_result, description, status, parent_task, subject from Tasks order by subject;";
+            string query = "select id, created_at, due_date, created_by, awaited_result, description, status, parent_task, subject, start_date from Tasks order by subject;";
             SqlCommand getTasksCommand = new SqlCommand(query, connection);
             using (SqlDataReader reader = getTasksCommand.ExecuteReader())
             {
@@ -69,7 +69,8 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
                         AwaitedResult = reader.GetString(4),
                         TaskDescription = reader.GetString(5),
                         StatusId = reader.GetInt32(6),
-                        Name = reader.GetString(8)
+                        Name = reader.GetString(8),
+                        StartDate = reader.GetDateTime(9)
                     };
                     if (!reader.IsDBNull(7))
                     {
@@ -265,13 +266,14 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
 
         public void AddNewTask(UserTask newTask)
         {
-            string sqlQuery = "insert into Tasks (subject, due_date, created_by, awaited_result, description, parent_task) values (@subj, @duedate, @createdby, @awaitedresult, @description, @parent_task);SELECT SCOPE_IDENTITY();";
+            string sqlQuery = "insert into Tasks (subject, due_date, created_by, awaited_result, description, parent_task, start_date) values (@subj, @duedate, @createdby, @awaitedresult, @description, @parent_task, @start_date);SELECT SCOPE_IDENTITY();";
             SqlCommand command = new SqlCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@subj", newTask.Name);
             command.Parameters.AddWithValue("@duedate", newTask.DueDate);
             command.Parameters.AddWithValue("@createdby", newTask.CreatedById);
             command.Parameters.AddWithValue("@awaitedresult", newTask.AwaitedResult);
             command.Parameters.AddWithValue("@description", newTask.TaskDescription);
+            command.Parameters.AddWithValue("@start_date", newTask.StartDate);
             command.Parameters.AddWithValue("@parent_task", (object)newTask.ParentTaskId ?? SqlInt32.Null);
             int newId = Convert.ToInt32(command.ExecuteScalar());
             newTask.Id = newId;
@@ -450,6 +452,10 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
 
         public void MoveChildTask(UserTask from, UserTask to)
         {
+            if(from.Id == to.Id)
+            {
+                return;
+            }
             string sqlQuery = "update Tasks set parent_task = @parentTask where id = @childTask;";
             SqlCommand command = new SqlCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@childTask", from.Id);

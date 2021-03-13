@@ -25,6 +25,17 @@ namespace TaskManager_redesign.Model
         }
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
+        private DateTime _startDate;
+        [Column("start_date")]
+        public DateTime StartDate { get
+            {
+                return _startDate;
+            }
+            set
+            {
+                _startDate = value;
+            }
+        }
         private DateTime _dueDate;
         [Column("due_date")]
         public DateTime DueDate

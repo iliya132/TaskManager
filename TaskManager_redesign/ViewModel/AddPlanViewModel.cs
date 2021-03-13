@@ -27,7 +27,8 @@ namespace TaskManager_redesign.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
-        public string Name { get; set; }
+        public string Name { get; 
+            set; }
         public DateTime DueDate { get; set; } = DateTime.Now.Date;
 
 

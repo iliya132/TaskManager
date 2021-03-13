@@ -148,7 +148,7 @@
             <Button Name="UKPBPBtn" Click="UKPBPBtn_Click" HorizontalContentAlignment="Left" Margin="0 0 0 0" Style="{StaticResource BtnStyle}">
                 <StackPanel Orientation="Horizontal" >
                     <Image Name="UKPBPImg" Source="/res/dropdown2.png" Width="15" Height="15" Margin="0 0 0 0" VerticalAlignment="Center"/>
-                    <TextBlock Text="УОКИО" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <TextBlock Text="УКПБП" Margin="4 0 0 0" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
             <StackPanel Name="UKPBP_DropDown" Visibility="Collapsed">

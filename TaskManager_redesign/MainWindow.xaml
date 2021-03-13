@@ -3,10 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TaskManager_redesign"
-        xmlns:model="clr-namespace:TaskManager_redesign.Model"
         xmlns:converters="clr-namespace:TaskManager_redesign.Converters"
-        xmlns:extensions="clr-namespace:TaskManager_redesign.Miscellaneous"
         mc:Ignorable="d"
         Title="MainWindow" Height="1024" Width="1440" WindowState="Maximized" 
         xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
@@ -42,7 +39,12 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type TreeViewItem}">
-                                    <Grid>
+                                    <Grid PreviewMouseLeftButtonDown="Bd_MouseDown" 
+                                          PreviewMouseLeftButtonUp="Grid_PreviewMouseLeftButtonUp"
+                                          MouseMove="Grid_MouseMove"
+                                          DragEnter="Bd_DragEnter"
+                                          Drop="Bd_Drop"
+                                          AllowDrop="True">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition MinWidth="19" Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
@@ -54,11 +56,7 @@
                                         <Border x:Name="Bd" Grid.Column="1" Height="35" Grid.Row="0" 
                                                 BorderBrush="#FFF6F6F6" BorderThickness="1" 
                                                 Background="white" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true"
-                                                PreviewMouseLeftButtonDown="Bd_MouseDown" 
-                                                MouseMove="Grid_MouseMove"
-                                                AllowDrop="True"
-                                                Drop="Bd_Drop"
-                                                DragEnter="Bd_DragEnter">
+                                                >
                                             <Grid Name="contentGrid">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="10"/>
@@ -87,32 +85,7 @@
                                             <Setter Property="BorderBrush" TargetName="Bd" Value="Red"/>
                                             <Setter Property="BorderThickness" TargetName="Bd" Value="1"/>
                                             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
-                                            
                                         </MultiDataTrigger>
-                                        <!--<DataTrigger Binding="{Binding IsHeader}" Value="True">
-                                            <Setter Property="BorderBrush" TargetName="Bd" Value="transparent"/>
-                                            <Setter Property="BorderThickness" TargetName="Bd" Value="0"/>
-                                            <Setter Property="Background" TargetName="Bd" Value="transparent"/>
-                                            <Setter Property="IsExpanded" Value="True"/>
-                                            <Setter Property="IsEnabled" TargetName="Bd" Value="False"/>
-                                            <Setter Property="IsManipulationEnabled" TargetName="Bd" Value="False"/>
-                                            <Setter Property="Visibility" TargetName="Expander" Value="Collapsed"/>
-                                            <Setter Property="Foreground" Value="White"/>
-                                        </DataTrigger>-->
-                                        <Trigger Property="IsSelected" Value="true">
-                                            
-                                        </Trigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsSelected" Value="true"/>
-                                                <Condition Property="IsSelectionActive" Value="false"/>
-                                            </MultiTrigger.Conditions>
-                                            <Setter Property="Background" TargetName="Bd" Value="gray"/>
-                                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}"/>
-                                        </MultiTrigger>
-                                        <Trigger Property="IsEnabled" Value="false">
-                                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-                                        </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
@@ -199,7 +172,7 @@
                 </Button>
                 <StackPanel x:Name="ExportSubMenu" Visibility="Collapsed">
                     <Button  Content="План реализации" Style="{StaticResource SubMenuButton}"/>
-                    <Button  Content="Дерево задач" Style="{StaticResource SubMenuButton}" Margin="0 0 0 7.67"/>
+                    <Button  Content="Дерево задач" Style="{StaticResource SubMenuButton}" Command="{Binding TreeReportCommand}" Margin="0 0 0 7.67"/>
                 </StackPanel>
 
             </StackPanel>
@@ -320,21 +293,30 @@
                         </Button>
                     </StackPanel>
                 </Grid>
-                <Grid Background="{DynamicResource MainUserControl}" Margin="9 4">
-                    <Border BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1" CornerRadius="2"/>
-                    <StackPanel>
-                        <TextBlock Text="Срок:" Style="{StaticResource h3}" Margin="8 12 8 10" VerticalAlignment="Center"/>
-                        <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
-                                <DatePicker HorizontalContentAlignment="Left" SelectedDate="{Binding ElementName=TaskTree, Path=SelectedItem.DueDate}" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DatePickerStyle}">
+                        <Grid Background="{DynamicResource MainUserControl}" Margin="9 4">
+                            <Border BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1" CornerRadius="2"/>
+                            <StackPanel>
+                                <TextBlock Text="Начало:" Style="{StaticResource h3}" Margin="8 12 8 10" VerticalAlignment="Center"/>
+                                <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
+                                <DatePicker HorizontalContentAlignment="Left" SelectedDate="{Binding ElementName=TaskTree, Path=SelectedItem.StartDate}" Tag="Укажите дату начала задачи" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DatePickerStyle}">
+                                    <e:Interaction.Triggers>
+                                        <e:EventTrigger EventName="SelectedDateChanged">
+                                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=FieldUpdated}" CommandParameter="StartDate" />
+                                        </e:EventTrigger>
+                                    </e:Interaction.Triggers>
+                                </DatePicker>
+                                <TextBlock Text="Срок:" Style="{StaticResource h3}" Margin="8 12 8 10" VerticalAlignment="Center"/>
+                                <Line X1="8" X2="{Binding ElementName=ResponsibleBlock, Path=ActualWidth}" Y1="0" Y2="0" Stroke="{DynamicResource MainUserControl.Border}" StrokeThickness="2"/>
+                                <DatePicker HorizontalContentAlignment="Left" SelectedDate="{Binding ElementName=TaskTree, Path=SelectedItem.DueDate}" Tag="Укажите срок исполнения задачи" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DatePickerStyle}">
                                     <e:Interaction.Triggers>
                                         <e:EventTrigger EventName="SelectedDateChanged">
                                             <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=FieldUpdated}" CommandParameter="DueDate" />
                                         </e:EventTrigger>
                                     </e:Interaction.Triggers>
                                 </DatePicker>
-                    </StackPanel>
-                </Grid>
-                <Grid Background="{DynamicResource MainUserControl}" Margin="9 4" Name="AwaitedResultBlock">
+                            </StackPanel>
+                        </Grid>
+                        <Grid Background="{DynamicResource MainUserControl}" Margin="9 4" Name="AwaitedResultBlock">
                     <Border BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1" CornerRadius="2"/>
                     <StackPanel>
                         <TextBlock Text="Ожидаемый результат" Style="{StaticResource h3}" Margin="8 12 8 10"/>

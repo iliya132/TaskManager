@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,7 +31,14 @@ namespace TaskManager_redesign
         const string DROP_DOWN_OPENED = @"res\dropdown.png";
         public MainWindow()
         {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             InitializeComponent();
+
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Debug.WriteLine(e.ExceptionObject.ToString());
         }
 
         private void OpenCloseExportSubMenu(object sender, RoutedEventArgs e)
@@ -70,25 +78,38 @@ namespace TaskManager_redesign
         }
 
         Point startPoint;
+        bool IsDragging = false;
+        bool IsMouseDownHitted = false;
         private void Grid_MouseMove(object sender, MouseEventArgs e)
         {
-            
-            Point mousePos = e.GetPosition(null);
-            Vector diff = startPoint - mousePos;
             if (e.LeftButton == MouseButtonState.Pressed &&
-                (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
-                Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance))
+                !IsDragging && IsMouseDownHitted)
             {
-                // Get the dragged ListViewItem
-                TreeViewItem listViewItem = FindAnchestor<TreeViewItem>((DependencyObject)e.OriginalSource);
+                Point mousePos = e.GetPosition(null);
+                Vector diff = startPoint - mousePos;
+                if(Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                    Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+                {
 
-                // Find the data behind the ListViewItem
-                UserTask task = (UserTask)listViewItem.Header;
-
-                // Initialize the drag & drop operation
-                DataObject dragData = new DataObject("myFormat", task);
-                DragDrop.DoDragDrop(listViewItem, dragData, DragDropEffects.Move);
+                    StartDrag(e);
+                }
             }
+        }
+
+        private void StartDrag(MouseEventArgs e)
+        {
+            IsDragging = true;
+            // Get the dragged ListViewItem
+            TreeViewItem listViewItem = FindAnchestor<TreeViewItem>((DependencyObject)e.OriginalSource);
+
+            // Find the data behind the ListViewItem
+            UserTask task = (UserTask)listViewItem.Header;
+
+            // Initialize the drag & drop operation
+            DataObject dragData = new DataObject("myFormat", task);
+            DragDrop.DoDragDrop(listViewItem, dragData, DragDropEffects.Move);
+            IsDragging = false;
+            e.Handled = true;
         }
 
         private static T FindAnchestor<T>(DependencyObject current) where T : DependencyObject
@@ -107,10 +128,8 @@ namespace TaskManager_redesign
 
         private void Bd_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                startPoint = e.GetPosition(sender as TreeView);
-            }
+            IsMouseDownHitted = true;
+            startPoint = e.GetPosition(null);
         }
 
         private bool IsTaskToTaskActionExecuted;
@@ -134,6 +153,7 @@ namespace TaskManager_redesign
                 MainViewModel mvm = MainViewModel.GetInstance();
                 mvm.DragNDrop.Execute((task, NewParentTask));
             }
+            e.Handled = true;
         }
 
         private void Bd_DragEnter(object sender, DragEventArgs e)
@@ -208,6 +228,11 @@ namespace TaskManager_redesign
         private void Window_Activated(object sender, EventArgs e)
         {
             UpdateService.CheckForUpdate();
+        }
+
+        private void Grid_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            IsMouseDownHitted = false;
         }
 
         //private void TaskTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)

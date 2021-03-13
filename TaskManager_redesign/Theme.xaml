@@ -5,6 +5,7 @@
                     xmlns:converters="clr-namespace:TaskManager_redesign.Converters">
     <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     <converters:StatusToIcoConverter x:Key="statusToIco"/>
+    <converters:TaskPlanToStringConverter x:Key="TaskPlanToStringConverter"/>
     <SolidColorBrush x:Key="MainBackground" Color="#FFF6F6F6"/>
     <SolidColorBrush x:Key="MainUserControl" Color="White"/>
     <SolidColorBrush x:Key="MainUserControl.Border" Color="#FFF1F1F1"/>
@@ -188,13 +189,13 @@
                                 <Style TargetType="{x:Type TextBox}">
                                     <Setter Property="Foreground" Value="Transparent"/>
                                     <Style.Triggers >
-                                        <DataTrigger Binding="{Binding Path=Text, Source={x:Reference textSource}}" Value="">
+                                        <DataTrigger Binding="{Binding Path=Text, ElementName=textSource}" Value="">
                                             <Setter Property="Foreground" Value="Black"/>
                                             <Setter Property="FontFamily" Value="Styrene A LC"/>
                                             <Setter Property="FontSize" Value="12px"/>
                                             <Setter Property="FontWeight" Value="Regular"/>
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding Path=IsFocused, Source={x:Reference textSource}}" Value="True">
+                                        <DataTrigger Binding="{Binding Path=IsFocused, ElementName=textSource}" Value="True">
                                             <Setter Property="Foreground" Value="Transparent"/>
                                             <Setter Property="FontFamily" Value="Styrene A LC"/>
                                             <Setter Property="FontSize" Value="12px"/>
@@ -213,6 +214,48 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type TextBox}" x:Key="EditablePlanField">
+        <Setter Property="FontFamily" Value="Styrene A LC"/>
+        <Setter Property="FontSize" Value="12px"/>
+        <Setter Property="FontWeight" Value="Light"/>
+        <Setter Property="Foreground" Value="{DynamicResource MainUserControlForeground}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Text" Value="{Binding Mode=TwoWay, Path=Description}"/>
+        
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TextBoxBase}">
+                    <Grid Name="fieldGrid">
+                        <Border x:Name="Border"  BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsReadOnly" Value="False"/>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.Setters>
+                                <Setter Property="Background" TargetName="fieldGrid" Value="{DynamicResource MainUserControl.MouseOver}"/>
+                            </MultiTrigger.Setters>
+                        </MultiTrigger>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter Property="Background" TargetName="fieldGrid" Value="transparent"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsFocused" Value="False">
+                <Setter Property="Text" Value="{Binding Mode=OneWay, Path=DescriptionWithDueDate}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style TargetType="{x:Type TextBox}" x:Key="EditableField">
@@ -362,12 +405,13 @@
                                     </e:EventTrigger>
                                 </e:Interaction.Triggers>
                             </CheckBox>
-                            <TextBox x:Name="PlanInputBox" Text="{Binding Description}" Style="{DynamicResource EditableField}" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" MaxWidth="250">
+                            <TextBox x:Name="PlanInputBox"  Style="{DynamicResource EditablePlanField}" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" MaxWidth="250">
                                 <e:Interaction.Triggers>
                                     <e:EventTrigger EventName="LostFocus">
                                         <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=UpdatePlanDescription}" CommandParameter="{Binding}"/>
                                     </e:EventTrigger>
                                 </e:Interaction.Triggers>
+                                
                             </TextBox>
                         </StackPanel>
                     <Button HorizontalAlignment="Right" Margin="10 0" Height="25" Width="25" BorderBrush="{x:Null}" BorderThickness="0" 
@@ -392,10 +436,11 @@
                         <Trigger Property="IsChecked" Value="True" SourceName="DoneCheckBox">
                             <Setter Property="Background" TargetName="ItemGrid" Value="#D5F5E3"/>
                         </Trigger>
-                    
+                        
+
                     </ControlTemplate.Triggers>
-                
-            </ControlTemplate>
+                    
+                </ControlTemplate>
         </Setter.Value>
     </Setter>
     </Style>
@@ -638,7 +683,7 @@
                             <DatePickerTextBox x:Name="PART_TextBox"
                                Grid.Column="1"
                                Style="{StaticResource placeHolder}"
-                                               Tag="Укажите срок исполнения задачи"
+                                               Tag="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Tag}"
                                Focusable="{TemplateBinding Focusable}"
                                HorizontalContentAlignment="Stretch"
                                Grid.Row="0"

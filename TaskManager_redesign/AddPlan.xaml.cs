@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,7 +20,12 @@ namespace TaskManager_redesign
     {
         public AddPlan()
         {
+            try { 
             InitializeComponent();
+            }catch(Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
         }
 
         private void OkBtn_Click(object sender, RoutedEventArgs e)
