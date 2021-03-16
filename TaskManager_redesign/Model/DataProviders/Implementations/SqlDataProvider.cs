@@ -12,20 +12,41 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
 {
     public class SqlDataProvider : IDataProvider
     {
-        private readonly SqlConnection connection;
+        private static readonly SqlConnection connection;
         private List<Status> Statuses;
         private List<Analytic> Analytics;
         private List<TaskToAnalytic> TaskToAnalytics;
 #if development
-        private readonly string connectionString = @"Data Source=ILYAHOME\MYDB;Initial Catalog=TaskManager;MultipleActiveResultSets=True;Integrated Security=True";
+        private static readonly string connectionString = @"Data Source=ILYAHOME\MYDB;Initial Catalog=TaskManager;MultipleActiveResultSets=True;Integrated Security=True";
 #else
-        private readonly string connectionString = @"Data Source=a105512\a105512;Initial Catalog=TaskManagerRedesigned;MultipleActiveResultSets=true;Integrated Security=false; user id = TimeSheetuser; password=DK_user!"; //Place Connection String here
+        private static readonly string connectionString = @"Data Source=a105512\a105512;Initial Catalog=TaskManagerRedesigned;MultipleActiveResultSets=true;Integrated Security=false; user id = TimeSheetuser; password=DK_user!"; //Place Connection String here
 #endif
-        public SqlDataProvider()
+        static SqlDataProvider()
         {
             connection = new SqlConnection(connectionString);
             connection.Open();
+        }
+        public SqlDataProvider()
+        {
             InitializeData();
+        }
+
+        public static void WriteLog(object sender, string Message, string StackTrace, string Source, string TargetSite)
+        {
+            string query = "insert into Logs(sender, message, stack_trace, source, target_site, reported_by) values (@sender, @Message, @StackTrace, @Source, @TargetSite, @ReportedBy);";
+            SqlCommand writeLogCommand = new SqlCommand(query, connection);
+            sender = sender == null ? "NotProvided" : sender;
+            Message = Message == null ? "NotProvided" : Message;
+            StackTrace = StackTrace == null ? "NotProvided" : StackTrace;
+            Source = Source == null ? "NotProvided" : Source;
+            TargetSite = TargetSite == null ? "NotProvided" : TargetSite;
+            writeLogCommand.Parameters.AddWithValue("@sender", sender.ToString());
+            writeLogCommand.Parameters.AddWithValue("@Message", Message);
+            writeLogCommand.Parameters.AddWithValue("@StackTrace", StackTrace);
+            writeLogCommand.Parameters.AddWithValue("@Source", Source);
+            writeLogCommand.Parameters.AddWithValue("@TargetSite", TargetSite);
+            writeLogCommand.Parameters.AddWithValue("@ReportedBy", Environment.UserName);
+            writeLogCommand.ExecuteNonQuery();
         }
 
         private void InitializeData()
@@ -452,7 +473,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
 
         public void MoveChildTask(UserTask from, UserTask to)
         {
-            if(from.Id == to.Id)
+            if(to != null && from.Id == to.Id)
             {
                 return;
             }
@@ -473,9 +494,10 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
 
         public void UpdateTaskPlan(TaskPlan plan)
         {
-            string sqlQuery = "update TaskPlan set description = @description where id = @id;";
+            string sqlQuery = "update TaskPlan set description = @description, due_date = @duedate where id = @id;";
             SqlCommand command = new SqlCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@description", plan.Description);
+            command.Parameters.AddWithValue("@duedate", plan.DueDate);
             command.Parameters.AddWithValue("@id", plan.Id);
             command.ExecuteNonQuery();
         }
@@ -494,7 +516,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
         private const int OEKO_OTDEL = 4;
         private const int OKVO_OTDEL = 5;
         private const int OKPBP_OTDEL = 6;
-        private const int OSRTKD_OTDEL = 7;
+        private const int ORTMKD_OTDEL = 44;
         private const int OURKD_OTDEL = 8;
         private const int ONTIE_OTDEL = 9;
         private const int SFM_ROSTOV_OTDEL = 10;
@@ -509,6 +531,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
         private const int ABSENT_OTDEL = 19;
         private const int SFM_SPB_OTDEL = 20;
         private const int OMO_OTDEL = 43;
+        private const int OPIRVN_OTDEL = 45;
 
 
         public Dictionary<int, List<Analytic>> GenerateAnalyticsTostructures()
@@ -517,7 +540,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
             result.Add(1, Analytics.Where(i => i.DirectionId == DFM_DIRECTION_ID && i.UpravlenieId == ABSENT_UPRAVLENIE && i.OtdelId == ABSENT_OTDEL).ToList()); //Руководство ДФМ
             result.Add(2, Analytics.Where(i => i.OtdelId == OMO_OTDEL).ToList());
             result.Add(3, Analytics.Where(i => i.OtdelId == ONTIE_OTDEL).ToList());
-            result.Add(4, Analytics.Where(i => i.OtdelId == OSRTKDFL_OTDEL || i.OtdelId == OSRTKD_OTDEL).ToList()); 
+            result.Add(4, Analytics.Where(i => i.OtdelId == OSRTKDFL_OTDEL || i.OtdelId == ORTMKD_OTDEL).ToList()); 
             result.Add(5, Analytics.Where(i => i.UpravlenieId == UKKO_UPRAVLENIE && i.OtdelId == ABSENT_OTDEL).ToList()); //Руководство УККО
             result.Add(6, Analytics.Where(i => i.OtdelId == OKOFL_OTDEL).ToList());
             result.Add(7, Analytics.Where(i => i.OtdelId == OFMA_OTDEL).ToList());
@@ -534,6 +557,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
             result.Add(18, Analytics.Where(i => i.UpravlenieId == USP_UPRAVLENIE && i.OtdelId == ABSENT_OTDEL).ToList()); //Руководство УСП
             result.Add(19, Analytics.Where(i => i.OtdelId == ORINR_OTDEL).ToList());
             result.Add(20, Analytics.Where(i => i.OtdelId == OEKO_OTDEL).ToList());
+            result.Add(21, Analytics.Where(i => i.OtdelId == OPIRVN_OTDEL).ToList());
             result.Add(-1, Analytics);
             return result;
         }

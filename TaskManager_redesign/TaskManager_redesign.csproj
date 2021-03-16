@@ -4,8 +4,8 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>1.0.0.6</AssemblyVersion>
-    <FileVersion>1.0.0.6</FileVersion>
+    <AssemblyVersion>1.0.0.11</AssemblyVersion>
+    <FileVersion>1.0.0.11</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -21,6 +21,7 @@
     <None Remove="res\a-logo.png" />
     <None Remove="res\adduser.png" />
     <None Remove="res\AtWork.png" />
+    <None Remove="res\dateto" />
     <None Remove="res\Done.png" />
     <None Remove="res\dropdown.png" />
     <None Remove="res\dropdown2.png" />
@@ -62,6 +63,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="res\dropdown3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="res\dateto">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="res\multiply.png">

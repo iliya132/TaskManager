@@ -23,7 +23,17 @@ namespace TaskManager_redesign.Model
             }
         }
         public DateTime CreatedAt { get; set; }
-        public DateTime DueDate { get; set; }
+        private DateTime _dueDate;
+        public DateTime DueDate
+        {
+            get => _dueDate;
+            set
+            {
+                _dueDate = value;
+                RaisePropertyChanged(nameof(DueDate));
+                RaisePropertyChanged(nameof(DescriptionWithDueDate));
+            }
+        }
         public UserTask Task { get; set; }
         public Analytic CreatedBy { get; set; }
         [NotMapped()]

@@ -4,7 +4,9 @@
              xmlns:local="clr-namespace:TaskManager_redesign"
              xmlns:viewmodels="clr-namespace:TaskManager_redesign.ViewModel"
              xmlns:model="clr-namespace:TaskManager_redesign.Model"
-             StartupUri="MainWindow.xaml">
+             StartupUri="MainWindow.xaml"
+             DispatcherUnhandledException="Application_DispatcherUnhandledException"
+             >
     <Application.Resources>
         <ResourceDictionary>
             <ObjectDataProvider x:Key="MainViewModel" ObjectType="{x:Type viewmodels:MainViewModel}" MethodName="GetInstance" />

@@ -155,11 +155,11 @@ namespace TaskManager_redesign.ViewModel
             }
             set
             {
-                if (SelectedItemChangedCodeBehind)
-                {
-                    SelectedItemChangedCodeBehind = false;
-                    MarkSelectedTask(value.Id, UserTasks);
-                }
+                //if (SelectedItemChangedCodeBehind)
+                //{
+                //    SelectedItemChangedCodeBehind = false;
+                //    MarkSelectedTask(value.Id, UserTasks);
+                //}
 
                 if (!IsRedrawActive && value!=_selectedItem)
                 {
@@ -189,9 +189,10 @@ namespace TaskManager_redesign.ViewModel
         public TriggerCommand AddNewPlanStep { get; set; }
         public TriggerCommand<string> SetFilterState { get; set; }
         public TriggerCommand<(UserTask, UserTask)> DragNDrop { get; set; }
-        public TriggerCommand<TaskPlan> UpdatePlanDescription { get; set; }
+        public TriggerCommand<TaskPlan> UpdatePlan { get; set; }
         public TriggerCommand<string> ChangeStructureFilter { get; set; }
         public TriggerCommand TreeReportCommand { get; set; }
+        public TriggerCommand ShowReportWindow { get; set; }
         #endregion
 
         #region initialize MVVM
@@ -209,9 +210,15 @@ namespace TaskManager_redesign.ViewModel
             AddNewPlanStep = new TriggerCommand(HandleAddPlanStepAction);
             SetFilterState = new TriggerCommand<string>(HandleTaskFilterStateChanged);
             DragNDrop = new TriggerCommand<(UserTask, UserTask)>(HandleDragAndDropAction);
-            UpdatePlanDescription = new TriggerCommand<TaskPlan>(HandleTaskPlanUpdate);
+            UpdatePlan = new TriggerCommand<TaskPlan>(HandleTaskPlanUpdate);
             ChangeStructureFilter = new TriggerCommand<string>(HandleStructFilterChanged);
             TreeReportCommand = new TriggerCommand(HandleTreeReport);
+            ShowReportWindow = new TriggerCommand(HandleReportBtnClicked);
+        }
+
+        private void HandleReportBtnClicked()
+        {
+            throw new NotImplementedException();
         }
 
         private void HandleTreeReport()

@@ -393,37 +393,51 @@
     <Setter Property="Template">
         <Setter.Value>
             <ControlTemplate>
-                <Grid Margin="5 0" Background="{DynamicResource MainUserControl}" MinHeight="30" Name="ItemGrid">
-                        <StackPanel Orientation="Horizontal" Margin="3 15">
-                            <CheckBox IsChecked="{Binding IsDone}" Style="{DynamicResource CheckBoxStyle}" VerticalAlignment="Center" Margin="5 0 15 0" x:Name="DoneCheckBox">
-                                <e:Interaction.Triggers>
-                                    <e:EventTrigger EventName="Checked">
-                                        <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=PlanStatusChanged}" CommandParameter="{Binding}"/>
-                                    </e:EventTrigger>
-                                    <e:EventTrigger EventName="Unchecked">
-                                        <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=PlanStatusChanged}" CommandParameter="{Binding}"/>
-                                    </e:EventTrigger>
-                                </e:Interaction.Triggers>
-                            </CheckBox>
-                            <TextBox x:Name="PlanInputBox"  Style="{DynamicResource EditablePlanField}" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" MaxWidth="250">
-                                <e:Interaction.Triggers>
-                                    <e:EventTrigger EventName="LostFocus">
-                                        <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=UpdatePlanDescription}" CommandParameter="{Binding}"/>
-                                    </e:EventTrigger>
-                                </e:Interaction.Triggers>
-                                
-                            </TextBox>
-                        </StackPanel>
-                    <Button HorizontalAlignment="Right" Margin="10 0" Height="25" Width="25" BorderBrush="{x:Null}" BorderThickness="0" 
-                                Background="Transparent" ToolTip="Удалить шаг" >
-                        <Image Source="/res/multiply.png"/>
+                <Grid Margin="5 0" Background="{DynamicResource MainUserControl}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth, Mode=OneWay}" MinHeight="30" Name="ItemGrid">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="60"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox IsChecked="{Binding IsDone}" Style="{DynamicResource CheckBoxStyle}" VerticalAlignment="Center" Margin="5 0 15 0" x:Name="DoneCheckBox" Grid.Column="0">
                             <e:Interaction.Triggers>
-                                <e:EventTrigger EventName="Click">
-                                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=RemovePlan}" CommandParameter="{Binding}"/>
+                                <e:EventTrigger EventName="Checked">
+                                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=PlanStatusChanged}" CommandParameter="{Binding}"/>
+                                </e:EventTrigger>
+                                <e:EventTrigger EventName="Unchecked">
+                                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=PlanStatusChanged}" CommandParameter="{Binding}"/>
                                 </e:EventTrigger>
                             </e:Interaction.Triggers>
-                           
-                    </Button>
+                        </CheckBox>
+                        <TextBox x:Name="PlanInputBox" Grid.Column="1"  Style="{DynamicResource EditablePlanField}" VerticalAlignment="Center" TextWrapping="Wrap" >
+                            <e:Interaction.Triggers>
+                                <e:EventTrigger EventName="LostFocus">
+                                    <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=UpdatePlan}" CommandParameter="{Binding}"/>
+                                </e:EventTrigger>
+                            </e:Interaction.Triggers>
+
+                        </TextBox>
+                        
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"  Grid.Column="2">
+                            <DatePicker SelectedDate="{Binding DueDate, Mode=TwoWay}" Style="{DynamicResource DatePickerWithoutTextBoxStyle}">
+                                <e:Interaction.Triggers>
+                                    <e:EventTrigger EventName="SelectedDateChanged">
+                                        <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=UpdatePlan}" CommandParameter="{Binding}" />
+                                    </e:EventTrigger>
+                                </e:Interaction.Triggers>
+                            </DatePicker>
+                            <Button  Height="25" Width="25" BorderBrush="{x:Null}" BorderThickness="0" 
+                                Background="Transparent" ToolTip="Удалить шаг" >
+                                <Image Source="/res/multiply.png"/>
+                                <e:Interaction.Triggers>
+                                    <e:EventTrigger EventName="Click">
+                                        <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=RemovePlan}" CommandParameter="{Binding}"/>
+                                    </e:EventTrigger>
+                                </e:Interaction.Triggers>
+
+                            </Button>
+                        </StackPanel>
+                    
                 </Grid>
                 <ControlTemplate.Triggers>
                         <MultiTrigger>
@@ -723,9 +737,90 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
-    
-    
+
+    <Style TargetType="{x:Type DatePicker}" x:Key="DatePickerWithoutTextBoxStyle">
+        <Setter Property="Foreground" Value="#FF333333" />
+        <Setter Property="IsTodayHighlighted" Value="True" />
+        <Setter Property="SelectedDateFormat" Value="Short" />
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <!--Set CalendarStyle to DatePickerCalendarStyle.-->
+        <Setter Property="CalendarStyle" Value="{DynamicResource DatePickerCalendarStyle}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type DatePicker}">
+                    <Border BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="PART_DisabledVisual" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Grid x:Name="PART_Root" Width="Auto" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="PART_Button"
+                    Grid.Column="0"
+                    Foreground="{TemplateBinding Foreground}"
+                    Focusable="False"
+                    HorizontalAlignment="Right"
+                    Margin="3,0,3,0"
+                    Grid.Row="0"
+                    Style="{StaticResource DropDownButtonStyle}"
+                    VerticalAlignment="Center" />
+                            <DatePickerTextBox x:Name="PART_TextBox"
+                               Grid.Column="1"
+                               Style="{StaticResource placeHolder}"
+                                               Tag="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Tag}"
+                               Focusable="{TemplateBinding Focusable}"
+                               HorizontalContentAlignment="Stretch"
+                               Grid.Row="0"
+                                               Visibility="Collapsed"
+                                               HorizontalAlignment="Stretch"
+                               VerticalContentAlignment="Stretch" />
+                            <Grid x:Name="PART_DisabledVisual" Grid.ColumnSpan="2"
+                  Grid.Column="0"
+                  IsHitTestVisible="False"
+                  Opacity="0"
+                  Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Rectangle Grid.Column="0"
+                         Fill="#A5FFFFFF"
+                         RadiusY="1"
+                         Grid.Row="0"
+                         RadiusX="1" />
+                                <Rectangle Grid.Column="1"
+                         Fill="#A5FFFFFF"
+                         Height="18"
+                         Margin="3,0,3,0"
+                         RadiusY="1"
+                         Grid.Row="0"
+                         RadiusX="1"
+                         Width="19" />
+                                <Popup x:Name="PART_Popup"
+                     AllowsTransparency="True"
+                     Placement="Bottom"
+                     PlacementTarget="{Binding ElementName=PART_TextBox}"
+                     StaysOpen="False" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
     <Color x:Key="WindowColor">#FFE8EDF9</Color>
     <Color x:Key="ContentAreaColorLight">#FFC5CBF9</Color>
     <Color x:Key="ContentAreaColorDark">#FF7381F9</Color>

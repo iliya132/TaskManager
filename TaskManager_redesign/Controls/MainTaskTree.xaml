@@ -1,0 +1,164 @@
+﻿<UserControl x:Class="TaskManager_redesign.Controls.MainTaskTree"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:TaskManager_redesign.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" DataContext="{Binding Source={StaticResource MainViewModel}}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Theme.xaml"/>
+                <ResourceDictionary>
+                    <Style x:Key="TreeViewItemStyle1" TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                        <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                        <Setter Property="Padding" Value="1,0,0,0"/>
+                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                        <Setter Property="FocusVisualStyle" Value="{StaticResource TreeViewItemFocusVisual}"/>
+                        <Setter Property="Header" Value="{Binding}"/>
+                        <Setter Property="Foreground" Value="Black"/>
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded}"/>
+
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type TreeViewItem}">
+                                    <Grid PreviewMouseLeftButtonDown="Bd_MouseDown" 
+                                          PreviewMouseLeftButtonUp="Grid_PreviewMouseLeftButtonUp"
+                                          MouseMove="Grid_MouseMove"
+                                          DragEnter="Bd_DragEnter"
+                                          Drop="Bd_Drop"
+                                          AllowDrop="True">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition MinWidth="19" Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="40"/>
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Border x:Name="Bd" Grid.Column="1" Height="35" Grid.Row="0" 
+                                                BorderBrush="#FFF6F6F6" BorderThickness="1" 
+                                                Background="white" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true"
+                                                >
+                                            <Grid Name="contentGrid">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="10"/>
+                                                    <ColumnDefinition Width="20"/>
+                                                    <ColumnDefinition Width="18*"/>
+                                                    <ColumnDefinition Width="71*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <ToggleButton x:Name="Expander" Grid.Column="0" ClickMode="Press" IsChecked="{Binding IsExpanded, Mode=TwoWay}" Style="{StaticResource ExpandCollapseToggleStyle}" Grid.ColumnSpan="2" Margin="7,8,7,9"/>
+                                                <ContentPresenter x:Name="PART_Header" Grid.Column="2" ContentSource="Header" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Grid.ColumnSpan="2"/>
+                                            </Grid>
+                                        </Border>
+                                        <ItemsPresenter x:Name="ItemsHost" Grid.Row="1" Grid.Column="1" />
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsExpanded" Value="false">
+                                            <Setter Property="Visibility" TargetName="ItemsHost" Value="Collapsed"/>
+                                        </Trigger>
+                                        <Trigger Property="HasItems" Value="false">
+                                            <Setter Property="Visibility" TargetName="Expander" Value="Hidden"/>
+                                        </Trigger>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsSelected}" Value="True"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="contentGrid" Value="#E5E5E5"/>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="Red"/>
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
+                                        </MultiDataTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="VirtualizingPanel.IsVirtualizing" Value="true">
+                                <Setter Property="ItemsPanel">
+                                    <Setter.Value>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsHeader}" Value="True">
+                                <Setter Property="Foreground" Value="White"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+        
+        
+    </UserControl.Resources>
+    <Grid Name="TaskCanvas" Background="#FF6F7D88">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="62*"/>
+            <RowDefinition Height="834*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <TextBlock Text="{Binding CurrentViewName}" Name="CanvasTitle" Style="{StaticResource Canvas-Title-h2}" Margin="23 16 0 0"/>
+        </Grid>
+        <Grid Grid.Row="1" Name="TasksGrid">
+            <TreeView Name="TaskTree"
+                          Drop="Bd_Drop"
+                          
+                    ItemsSource="{Binding UserTasks}"
+                    AllowDrop="True"
+                    ItemContainerStyle="{StaticResource TreeViewItemStyle1}" 
+                    HorizontalContentAlignment="Stretch" 
+                    Margin="12 0 21 80" 
+                    Loaded="TaskTree_Loaded"
+                    Background="{x:Null}" BorderBrush="{x:Null}">
+                <e:Interaction.Triggers>
+                    <e:EventTrigger EventName="SelectedItemChanged" >
+                        <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=SelectedTaskChanged}" CommandParameter="{Binding ElementName=TaskTree, Path=SelectedItem}"/>
+                    </e:EventTrigger>
+                </e:Interaction.Triggers>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Path=ChildTasks}" >
+                        <Grid>
+                            <Grid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Удалить">
+                                        <e:Interaction.Triggers>
+                                            <e:EventTrigger EventName="Click">
+                                                <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=RemoveTask}" CommandParameter="{Binding}"/>
+                                            </e:EventTrigger>
+                                        </e:Interaction.Triggers>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </Grid.ContextMenu>
+                            <TextBlock x:Name="ContentText" Style="{StaticResource h3}" Grid.Row="0" Grid.Column="0" TextWrapping="WrapWithOverflow" VerticalAlignment="Center" Text="{Binding Name}"/>
+                            <Image Source="{Binding Status, Converter={StaticResource statusToIco}}" HorizontalAlignment="Right" Margin="5" Width="21"/>
+                        </Grid>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+            <Grid >
+                <CheckBox HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="63 5" IsChecked="{Binding Source={StaticResource MainViewModel}, Path=IsCreateAsParentModeActive}">
+                    <TextBlock Text="Создать родительскую задачу" Style="{StaticResource regular-text}" Foreground="#FFFFFEFE"/>
+                </CheckBox>
+                <TextBox x:Name="AddNewTaskField" Style="{StaticResource placeHolder}" KeyDown="AddNewTaskField_KeyDown" Tag="+ Добавить задачу" VerticalAlignment="Bottom" Height="34" VerticalContentAlignment="Center" Margin="63 25">
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="LostFocus">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=AddNewTask}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=TextBox, Mode=FindAncestor}, Path=Text}"/>
+                            <e:ChangePropertyAction PropertyName="Text" TargetName="AddNewTaskField" Value=""/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </TextBox>
+            </Grid>
+
+        </Grid>
+
+    </Grid>
+</UserControl>

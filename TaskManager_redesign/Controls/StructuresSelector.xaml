@@ -63,10 +63,18 @@
                     </e:Interaction.Triggers>
                 </Button>
                 <Button Name="OSRTKDBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
-                    <TextBlock Text="ОСРТКД" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <TextBlock Text="ОРТМКД" Margin="4 0 0 0" VerticalAlignment="Center"/>
                     <e:Interaction.Triggers>
                         <e:EventTrigger EventName="Click">
                             <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="4"/>
+                        </e:EventTrigger>
+                    </e:Interaction.Triggers>
+                </Button>
+                <Button Name="OPIRVNBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
+                    <TextBlock Text="ОПИРВН" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                    <e:Interaction.Triggers>
+                        <e:EventTrigger EventName="Click">
+                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="21"/>
                         </e:EventTrigger>
                     </e:Interaction.Triggers>
                 </Button>
