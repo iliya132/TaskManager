@@ -193,6 +193,8 @@ namespace TaskManager_redesign.ViewModel
         public TriggerCommand<string> ChangeStructureFilter { get; set; }
         public TriggerCommand TreeReportCommand { get; set; }
         public TriggerCommand ShowReportWindow { get; set; }
+        public TriggerCommand<UserTask> CopyTask { get; set; }
+        public TriggerCommand<UserTask> PasteTask { get; set; }
         #endregion
 
         #region initialize MVVM
@@ -214,6 +216,23 @@ namespace TaskManager_redesign.ViewModel
             ChangeStructureFilter = new TriggerCommand<string>(HandleStructFilterChanged);
             TreeReportCommand = new TriggerCommand(HandleTreeReport);
             ShowReportWindow = new TriggerCommand(HandleReportBtnClicked);
+            CopyTask = new TriggerCommand<UserTask>(HandleCopyTask);
+            PasteTask = new TriggerCommand<UserTask>(HandlePasteTask);
+        }
+
+        private void HandlePasteTask(UserTask obj)
+        {
+            if (CopiedTask == null)
+            {
+                return;
+            }
+            HandleDragAndDropAction((CopiedTask, obj));
+        }
+
+        UserTask CopiedTask;
+        private void HandleCopyTask(UserTask obj)
+        {
+            CopiedTask = obj;
         }
 
         private void HandleReportBtnClicked()
@@ -276,12 +295,15 @@ namespace TaskManager_redesign.ViewModel
         private void HandleFinishCommandAction(string comment)
         {
             Status doneStatus = Statuses.SingleOrDefault(i => i.Name.Equals("Завершена"));
-            dataProvider.UpdateTaskToAnalytic(CurrentAnalytic.Id, SelectedItem.Id, comment, doneStatus);
+            Status newStatus = dataProvider.UpdateTaskToAnalytic(CurrentAnalytic.Id, SelectedItem.Id, comment, doneStatus);
             TaskToAnalytic tta = SelectedItem.AssignedTo.SingleOrDefault(i => i.AnalyticId == CurrentAnalytic.Id);
             tta.Status = doneStatus;
             tta.StatusId = doneStatus.Id;
             tta.Comment = comment;
-
+            if(SelectedItem.Status != newStatus)
+            {
+                SelectedItem.Status = newStatus;
+            }
         }
 
         private void HandleSelectedTaskChanged(UserTask obj)

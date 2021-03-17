@@ -76,7 +76,17 @@ namespace TaskManager_redesign.Model
         public ObservableCollection<TaskPlan> TaskPlans { get; set; } = new ObservableCollection<TaskPlan>();
         [Column("status")]
         public int StatusId { get; set; }
-        public Status Status { get; set; }
+        private Status _status = new Status();
+
+        public Status Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                RaisePropertyChanged(nameof(Status));
+            }
+        }
         [Column("parent_task")]
         public int? ParentTaskId { get; set; }
         public bool IsHeader { get; set; } = false;

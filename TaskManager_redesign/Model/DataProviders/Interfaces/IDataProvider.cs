@@ -13,7 +13,7 @@ namespace TaskManager_redesign.Model.DataProviders.Interfaces
         Analytic GetUser(string userName);
         void UpdateField(string field, object newValue, int TaskId);
         void AddNewTask(UserTask newTask);
-        void UpdateTaskToAnalytic(int id1, int id2, string comment, Status status);
+        Status UpdateTaskToAnalytic(int id1, int id2, string comment, Status status);
         void DeleteAssignedAnalytic(TaskToAnalytic obj);
         TaskToAnalytic AddNewAssignedAnalytic(Analytic analytic, UserTask selectedItem);
         void RemoveTask(UserTask task);

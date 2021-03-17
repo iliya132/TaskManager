@@ -129,6 +129,20 @@
                         <Grid>
                             <Grid.ContextMenu>
                                 <ContextMenu>
+                                    <MenuItem Header="Вырезать">
+                                        <e:Interaction.Triggers>
+                                            <e:EventTrigger EventName="Click">
+                                                <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=CopyTask}" CommandParameter="{Binding}"/>
+                                            </e:EventTrigger>
+                                        </e:Interaction.Triggers>
+                                    </MenuItem>
+                                    <MenuItem Header="Вставить">
+                                        <e:Interaction.Triggers>
+                                            <e:EventTrigger EventName="Click">
+                                                <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=PasteTask}" CommandParameter="{Binding}"/>
+                                            </e:EventTrigger>
+                                        </e:Interaction.Triggers>
+                                    </MenuItem>
                                     <MenuItem Header="Удалить">
                                         <e:Interaction.Triggers>
                                             <e:EventTrigger EventName="Click">

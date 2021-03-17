@@ -305,15 +305,17 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
             return Analytics.SingleOrDefault(a => a.UserName.ToLower().Equals(userName.ToLower()));
         }
 
-        public void UpdateTaskToAnalytic(int analyticId, int taskId, string comment, Status status)
+        public Status UpdateTaskToAnalytic(int analyticId, int taskId, string comment, Status status)
         {
-            string sqlQuery = "update TasksToAnalytics set comment = @comment, status = @status where analytic = @analytic and task = @task";
+            string sqlQuery = "update TasksToAnalytics set comment = @comment, status = @status where analytic = @analytic and task = @task; Select status from Tasks where Tasks.id = @task;";
             SqlCommand command = new SqlCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@comment", comment);
             command.Parameters.AddWithValue("@status", status.Id);
             command.Parameters.AddWithValue("@analytic", analyticId);
             command.Parameters.AddWithValue("@task", taskId);
-            command.ExecuteNonQuery();
+            int newStatus = (int)command.ExecuteScalar();
+            return Statuses.SingleOrDefault(i => i.Id == newStatus);
+
         }
 
         public void DeleteAssignedAnalytic(TaskToAnalytic obj)
