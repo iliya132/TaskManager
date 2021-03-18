@@ -169,7 +169,119 @@ namespace TaskManager_redesign.ViewModel
         }
         public Analytic CurrentAnalytic { get; set; }
         public bool IsCreateAsParentModeActive { get; set; }
+        #region Статистика
+        public int OverallTasks
+        {
+            get
+            {
+                double result = 0;
+                foreach(UserTask task in UserTasks)
+                {
+                    result += CalculateSumRecoursive(x => 1, task);
+                }
+                return (int)result;
+            }
+        }
+
+        public int TasksComplete
+        {
+            get
+            {
+                double result = 0;
+                foreach (UserTask task in UserTasks)
+                {
+                    result += CalculateSumRecoursive(x => x.StatusId == 2 ? 1 : 0, task);
+                }
+                return (int)result;
+            }
+        }
+
+        public int TasksExpired
+        {
+            get
+            {
+                double result = 0;
+                foreach (UserTask task in UserTasks)
+                {
+                    result += CalculateSumRecoursive(x => x.StatusId == 1 && x.DueDate > DateTime.Now ? 1 : 0, task);
+                }
+                return (int)result;
+            }
+        }
         
+        public List<AnalyticStatistic> TasksOnAnalytics
+        {
+            get
+            {
+                List<AnalyticStatistic> result = new List<AnalyticStatistic>();
+                List<UserTask> tasks = AllTasks.Intersect(UserTasks).ToList();
+                foreach(UserTask tsk in tasks)
+                {
+                    int quarter = (int)Math.Ceiling((double)tsk.DueDate.Month / 3);
+                    bool isTaskExpired = tsk.DueDate > DateTime.Now && tsk.StatusId == 1;
+
+                    foreach (Analytic analytic in tsk.AssignedTo.Select(i=>i.Analytic))
+                    {
+                        if (!result.Any(i => i.Name.Equals(analytic.ToString())))
+                        {
+                            result.Add(new AnalyticStatistic
+                            {
+                                Name = analytic.ToString()
+                            });
+                        }
+                        AnalyticStatistic record = result.Single(i => i.Name.Equals(analytic.ToString()));
+                        if (tsk.StatusId == 2)
+                        {
+                            record.TasksDone++;
+                        }
+                        record.TasksCount++;
+                        switch(quarter)
+                        {
+                            case 1:
+                                record.q1TasksCount++;
+                                break;
+                            case 2:
+                                record.q2TasksCount++;
+                                break;
+                            case 3:
+                                record.q3TasksCount++;
+                                break;
+                            case 4:
+                                record.q4TasksCount++;
+                                break;
+                        }
+                        if (isTaskExpired)
+                        {
+                            record.TasksExpired++;
+                        }
+                        
+                    }
+                }
+                
+                return result;
+            }
+        }
+
+        private double CalculateSumRecoursive(Func<UserTask, double> func, UserTask task)
+        {
+            double result = func(task);
+            foreach (UserTask childTask in task.ChildTasks)
+            {
+                result += CalculateSumRecoursive(func, childTask);
+            }
+            return result;
+        }
+
+
+
+        private void OnStatisticChanged()
+        {
+            RaisePropertyChanged(nameof(OverallTasks));
+            RaisePropertyChanged(nameof(TasksComplete));
+            RaisePropertyChanged(nameof(TasksExpired));
+            RaisePropertyChanged(nameof(TasksOnAnalytics));
+        }
+        #endregion
         #endregion
 
         #region Commands
@@ -191,6 +303,7 @@ namespace TaskManager_redesign.ViewModel
         public TriggerCommand ShowReportWindow { get; set; }
         public TriggerCommand<UserTask> CopyTask { get; set; }
         public TriggerCommand<UserTask> PasteTask { get; set; }
+        public TriggerCommand CollapseAllCommand { get; set; }
         #endregion
 
         #region initialize MVVM
@@ -214,6 +327,27 @@ namespace TaskManager_redesign.ViewModel
             ShowReportWindow = new TriggerCommand(HandleReportBtnClicked);
             CopyTask = new TriggerCommand<UserTask>(HandleCopyTask);
             PasteTask = new TriggerCommand<UserTask>(HandlePasteTask);
+            CollapseAllCommand = new TriggerCommand(HandleCollapseAll);
+        }
+
+        private void HandleCollapseAll()
+        {
+            foreach(UserTask task in AllTasks)
+            {
+                CollapseRecoursive(task);
+            }
+        }
+
+        private void CollapseRecoursive(UserTask task)
+        {
+            if (task.IsExpanded)
+            {
+                task.IsExpanded = false;
+            }
+            foreach(UserTask childTask in task.ChildTasks)
+            {
+                CollapseRecoursive(childTask);
+            }
         }
 
         private void HandlePasteTask(UserTask obj)
@@ -459,6 +593,7 @@ namespace TaskManager_redesign.ViewModel
                         break;
                 }
                 RaisePropertyChanged(nameof(CurrentViewName));
+                OnStatisticChanged();
             }
         }
 
@@ -469,7 +604,7 @@ namespace TaskManager_redesign.ViewModel
             switch (CurrentTaskFilter)
             {
                 case (TaskFilter.AllTasks):
-                    AllTasks.Where(i => i.ParentTaskId == null).ToList().ForEach(newValues.Add);
+                    AllTasks.Where(i => i.ParentTaskId == null).OrderBy(i=>i.BaseParentTask.Name).ToList().ForEach(newValues.Add);
                     break;
                 case (TaskFilter.AssignedToMe):
                     AllTasks.Where(i => i.AssignedTo.Any(anl=>anl.AnalyticId == CurrentAnalytic.Id)).ToList().ForEach(newValues.Add);

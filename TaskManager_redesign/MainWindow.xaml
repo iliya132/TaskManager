@@ -89,8 +89,39 @@
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1" Grid.Column="1">
-            <ContentControl x:Name="ContentHolder" Visibility="{Binding Source={StaticResource MainViewModel}, Path=AllTaskTreeVisibility, Mode=TwoWay}"/>
-            <ContentControl x:Name="TasksFilteredContent" Visibility="{Binding Source={StaticResource MainViewModel}, Path=TasksFilteredVisibility, Mode=TwoWay}"/>
+            <TabControl>
+
+                <TabItem Header="Задачи" Width="150">
+                    <Grid>
+                        <ContentControl x:Name="ContentHolder" Visibility="{Binding Source={StaticResource MainViewModel}, Path=AllTaskTreeVisibility, Mode=TwoWay}"/>
+                        <ContentControl x:Name="TasksFilteredContent" Visibility="{Binding Source={StaticResource MainViewModel}, Path=TasksFilteredVisibility, Mode=TwoWay}"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Статистика" Width="150">
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="{Binding OverallTasks, StringFormat=Всего задач: {0}}"/>
+                            <TextBlock Text="{Binding TasksComplete, StringFormat=Завершено задач: {0}}"/>
+                            <TextBlock Text="{Binding TasksExpired, StringFormat=Просрочено задач: {0}}"/>
+                            <DataGrid ItemsSource="{Binding TasksOnAnalytics}" IsReadOnly="True" AutoGenerateColumns="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding Name, Mode=OneWay}" Header="Сотрудник"/>
+                                    <DataGridTextColumn Binding="{Binding TasksCount, Mode=OneWay}" Header="Всего задач"/>
+                                    <DataGridTextColumn Binding="{Binding TasksDone, Mode=OneWay}" Header="Завершено"/>
+                                    <DataGridTextColumn Binding="{Binding TasksExpired, Mode=OneWay}" Header="Просрочено"/>
+                                    <DataGridTextColumn Binding="{Binding q1TasksCount, Mode=OneWay}" Header="Задач на 1 кв"/>
+                                    <DataGridTextColumn Binding="{Binding q2TasksCount, Mode=OneWay}" Header="Задач на 2 кв"/>
+                                    <DataGridTextColumn Binding="{Binding q3TasksCount, Mode=OneWay}" Header="Задач на 3 кв"/>
+                                    <DataGridTextColumn Binding="{Binding q4TasksCount, Mode=OneWay}" Header="Задач на 4 кв"/>
+                                    <DataGridTextColumn Binding="{Binding TasksCompletionPercent, Mode=OneWay}" Header="%Завершения"/>
+                                    <DataGridTextColumn Binding="{Binding TasksExpiredPercent, Mode=OneWay}" Header="%Просрочек"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+            
         </Grid>
         
         <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Width="5" ShowsPreview="False"/>

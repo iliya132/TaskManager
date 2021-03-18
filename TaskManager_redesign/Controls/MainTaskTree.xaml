@@ -53,7 +53,7 @@
                                                     <ColumnDefinition Width="18*"/>
                                                     <ColumnDefinition Width="71*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <ToggleButton x:Name="Expander" Grid.Column="0" ClickMode="Press" IsChecked="{Binding IsExpanded, Mode=TwoWay}"  Style="{StaticResource ExpandCollapseToggleStyle}" Grid.ColumnSpan="2" Margin="7,8,7,9"/>
+                                                <ToggleButton x:Name="Expander" Grid.Column="0" ClickMode="Press" IsChecked="{Binding IsExpanded, Mode=TwoWay}"  Style="{StaticResource ExpandCollapseToggleStyle}" Background="Transparent" Grid.ColumnSpan="2" Margin="7,8,7,9"/>
                                                 <ContentPresenter x:Name="PART_Header" Grid.Column="2" ContentSource="Header" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Grid.ColumnSpan="2"
                                                                   PreviewMouseLeftButtonDown="Bd_MouseDown" 
                                                     PreviewMouseLeftButtonUp="Grid_PreviewMouseLeftButtonUp"
