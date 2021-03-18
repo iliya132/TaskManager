@@ -142,6 +142,9 @@ namespace TaskManager_redesign.ViewModel
             }
         }
 
+        public Visibility TasksFilteredVisibility { get; set; } = Visibility.Collapsed;
+        public Visibility AllTaskTreeVisibility { get; set; }
+
         public string CurrentViewName { get; set; } = "Все задачи";
         #endregion
 
@@ -155,18 +158,10 @@ namespace TaskManager_redesign.ViewModel
             }
             set
             {
-                //if (SelectedItemChangedCodeBehind)
-                //{
-                //    SelectedItemChangedCodeBehind = false;
-                //    MarkSelectedTask(value.Id, UserTasks);
-                //}
-
-                if (!IsRedrawActive && value!=_selectedItem)
+                if (!IsRedrawActive && value!=_selectedItem && value != null)
                 {
                     _selectedItem = value;
                     RaisePropertyChanged(nameof(SelectedItem));
-                    
-                    
                 }
                 
                 IsRedrawActive = false;
@@ -174,6 +169,7 @@ namespace TaskManager_redesign.ViewModel
         }
         public Analytic CurrentAnalytic { get; set; }
         public bool IsCreateAsParentModeActive { get; set; }
+        
         #endregion
 
         #region Commands
@@ -440,12 +436,17 @@ namespace TaskManager_redesign.ViewModel
 
             if (!IsFilterUnchanged)
             {
+                IsRedrawActive = true;
                 CurrentTaskFilter = (TaskFilter)Enum.Parse(typeof(TaskFilter), newState);
                 UpdateTaskCollection();
                 switch (newState)
                 {
                     case ("AllTasks"):
                         CurrentViewName = "Все задачи";
+                        TasksFilteredVisibility = Visibility.Collapsed;
+                        AllTaskTreeVisibility = Visibility.Visible;
+                        RaisePropertyChanged(nameof(TasksFilteredVisibility));
+                        RaisePropertyChanged(nameof(AllTaskTreeVisibility));
                         break;
                     case ("AssignedToMe"):
                         CurrentViewName = "Задачи назначенные мне";

@@ -27,12 +27,7 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type TreeViewItem}">
-                                    <Grid PreviewMouseLeftButtonDown="Bd_MouseDown" 
-                                          PreviewMouseLeftButtonUp="Grid_PreviewMouseLeftButtonUp"
-                                          MouseMove="Grid_MouseMove"
-                                          DragEnter="Bd_DragEnter"
-                                          Drop="Bd_Drop"
-                                          AllowDrop="True">
+                                    <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition MinWidth="19" Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
@@ -45,18 +40,30 @@
                                                 BorderBrush="#FFF6F6F6" BorderThickness="1" 
                                                 Background="white" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true"
                                                 >
-                                            <Grid Name="contentGrid">
+                                            <Grid Name="contentGrid"  
+                                                  PreviewMouseLeftButtonDown="Bd_MouseDown" 
+                                                    PreviewMouseLeftButtonUp="Grid_PreviewMouseLeftButtonUp"
+                                                  DragEnter="Bd_DragEnter"
+                                                Drop="Bd_Drop"
+                                                AllowDrop="True"
+                                                  MouseMove="Grid_MouseMove">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="10"/>
                                                     <ColumnDefinition Width="20"/>
                                                     <ColumnDefinition Width="18*"/>
                                                     <ColumnDefinition Width="71*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <ToggleButton x:Name="Expander" Grid.Column="0" ClickMode="Press" IsChecked="{Binding IsExpanded, Mode=TwoWay}" Style="{StaticResource ExpandCollapseToggleStyle}" Grid.ColumnSpan="2" Margin="7,8,7,9"/>
-                                                <ContentPresenter x:Name="PART_Header" Grid.Column="2" ContentSource="Header" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Grid.ColumnSpan="2"/>
+                                                <ToggleButton x:Name="Expander" Grid.Column="0" ClickMode="Press" IsChecked="{Binding IsExpanded, Mode=TwoWay}"  Style="{StaticResource ExpandCollapseToggleStyle}" Grid.ColumnSpan="2" Margin="7,8,7,9"/>
+                                                <ContentPresenter x:Name="PART_Header" Grid.Column="2" ContentSource="Header" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Grid.ColumnSpan="2"
+                                                                  PreviewMouseLeftButtonDown="Bd_MouseDown" 
+                                                    PreviewMouseLeftButtonUp="Grid_PreviewMouseLeftButtonUp"
+                                                  DragEnter="Bd_DragEnter"
+                                                Drop="Bd_Drop"
+                                                AllowDrop="True"
+                                                  MouseMove="Grid_MouseMove"/>
                                             </Grid>
                                         </Border>
-                                        <ItemsPresenter x:Name="ItemsHost" Grid.Row="1" Grid.Column="1" />
+                                        <ItemsPresenter x:Name="ItemsHost" Grid.Row="1" Grid.Column="1"/>
                                     </Grid>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsExpanded" Value="false">
@@ -97,8 +104,8 @@
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-        
-        
+
+
     </UserControl.Resources>
     <Grid Name="TaskCanvas" Background="#FF6F7D88">
         <Grid.RowDefinitions>
@@ -108,12 +115,11 @@
         <Grid Grid.Row="0">
             <TextBlock Text="{Binding CurrentViewName}" Name="CanvasTitle" Style="{StaticResource Canvas-Title-h2}" Margin="23 16 0 0"/>
         </Grid>
-        <Grid Grid.Row="1" Name="TasksGrid">
+        <Grid Grid.Row="1" Name="TasksGrid" AllowDrop="True" Drop="Bd_Drop">
             <TreeView Name="TaskTree"
-                          Drop="Bd_Drop"
-                          
+                          AllowDrop="True"
+                      Drop="Bd_Drop"
                     ItemsSource="{Binding UserTasks}"
-                    AllowDrop="True"
                     ItemContainerStyle="{StaticResource TreeViewItemStyle1}" 
                     HorizontalContentAlignment="Stretch" 
                     Margin="12 0 21 80" 
@@ -158,7 +164,7 @@
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>
-            <Grid >
+            <Grid AllowDrop="True">
                 <CheckBox HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="63 5" IsChecked="{Binding Source={StaticResource MainViewModel}, Path=IsCreateAsParentModeActive}">
                     <TextBlock Text="Создать родительскую задачу" Style="{StaticResource regular-text}" Foreground="#FFFFFEFE"/>
                 </CheckBox>

@@ -125,6 +125,17 @@ namespace TaskManager_redesign.Model
         }
 
         public UserTask ParentTask { get; set; }
+        public UserTask BaseParentTask { get
+            {
+                if (ParentTask != null)
+                {
+                    return ParentTask.BaseParentTask;
+                }
+                else
+                {
+                    return this;
+                }
+            } }
 
         public override bool Equals(object obj)
         {
@@ -145,7 +156,7 @@ namespace TaskManager_redesign.Model
 
         public override string ToString()
         {
-            return $"{Id} - {Name}";
+            return Name;
         }
 
         private bool _isSelected = false;
@@ -161,8 +172,35 @@ namespace TaskManager_redesign.Model
                 {
                     _isSelected = value;
                     RaisePropertyChanged("IsSelected");
+                    RaiseExpandedChanged();
                 }
             }
+        }
+
+        public void RaiseExpandedChanged()
+        {
+            RaisePropertyChanged(nameof(IsExpanded));
+            if(ParentTask != null)
+            {
+                ParentTask.RaiseExpandedChanged();
+            }
+        }
+
+        private bool isChildTaskSelected()
+        {
+
+            if(ChildTasks.Count > 0)
+            {
+                foreach(UserTask task in ChildTasks)
+                {
+                    if (task.IsSelected || task.isChildTaskSelected())
+                    {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
         }
 
         private bool _isExpanded = false;
@@ -170,15 +208,19 @@ namespace TaskManager_redesign.Model
         {
             get
             {
+                if (!_isExpanded)
+                {
+                    if (isChildTaskSelected())
+                    {
+                        _isExpanded = true;
+                    }
+                }
                 return _isExpanded;
             }
             set
             {
-                if(_isExpanded != value)
-                {
-                    _isExpanded = value;
-                    RaisePropertyChanged("IsExpanded");
-                }
+                _isExpanded = value;
+                RaisePropertyChanged("IsExpanded");
             }
         }
     }

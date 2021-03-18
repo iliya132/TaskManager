@@ -30,14 +30,22 @@ namespace TaskManager_redesign
         const string DROP_DOWN_CLOSED = @"res\dropdown2.png";
         const string DROP_DOWN_OPENED = @"res\dropdown.png";
         MainTaskTree taskTree = new MainTaskTree();
+        TasksFiltered tasksFiltered = new TasksFiltered();
         public MainWindow()
         {
             InitializeComponent();
             ContentHolder.Content = taskTree;
-            
+            TasksFilteredContent.Content = tasksFiltered;
+            tasksFiltered.tasksList.MouseDoubleClick += TasksList_MouseDoubleClick;
+
         }
 
-
+        private void TasksList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            AllTasksBtn.Command.Execute("AllTasks");
+            TasksFilteredContent.Visibility = Visibility.Collapsed;
+            ContentHolder.Visibility = Visibility.Visible;
+        }
 
         private void OpenCloseExportSubMenu(object sender, RoutedEventArgs e)
         {
@@ -117,21 +125,18 @@ namespace TaskManager_redesign
             UpdateService.CheckForUpdate();
         }
 
-        
+        private void ReportBtn_Click(object sender, RoutedEventArgs e)
+        {
+            TasksFilteredContent.Visibility = Visibility.Visible;
+            ContentHolder.Visibility = Visibility.Collapsed;
+            
+        }
 
-        //private void TaskTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        //{
-        //    if (e.NewValue == null)
-        //        return;
-        //    UserTask oldTask = e.OldValue as UserTask;
-        //    UserTask ut = e.NewValue as UserTask;
-        //    if (ut.IsHeader)
-        //    {
-        //        ut.IsSelected = false;
-        //    }
-
-
-
-        //}
+        private void AllTasksBtnClick(object sender, RoutedEventArgs e)
+        {
+            TasksFilteredContent.Visibility = Visibility.Collapsed;
+            ContentHolder.Visibility = Visibility.Visible;
+            
+        }
     }
 }

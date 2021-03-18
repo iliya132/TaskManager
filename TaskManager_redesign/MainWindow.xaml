@@ -47,21 +47,16 @@
         </Grid>
         <Grid Grid.Row="1" Grid.Column="0" Name="Menu">
             <StackPanel>
-                <Button  Content="Все задачи" Style="{StaticResource MenuButton}" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
-                    <e:Interaction.Triggers>
-                        <e:EventTrigger EventName="Click">
-                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=SetFilterState}" CommandParameter="AllTasks"/>
-                        </e:EventTrigger>
-                    </e:Interaction.Triggers>
+                <Button  Content="Все задачи" Style="{StaticResource MenuButton}" Name="AllTasksBtn" Command="{Binding Source={StaticResource MainViewModel}, Path=SetFilterState}" CommandParameter="AllTasks" Click="AllTasksBtnClick" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
                 </Button>
-                <Button  Content="Я ответственный" Style="{StaticResource MenuButton}" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
+                <Button  Content="Я ответственный" Click="ReportBtn_Click" Style="{StaticResource MenuButton}" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
                     <e:Interaction.Triggers>
                         <e:EventTrigger EventName="Click">
                             <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=SetFilterState}" CommandParameter="AssignedToMe"/>
                         </e:EventTrigger>
                     </e:Interaction.Triggers>
                 </Button>
-                <Button  Content="Я инициатор" Style="{StaticResource MenuButton}" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
+                <Button  Content="Я инициатор" Click="ReportBtn_Click" Style="{StaticResource MenuButton}" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
                     <e:Interaction.Triggers>
                         <e:EventTrigger EventName="Click">
                             <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=SetFilterState}" CommandParameter="ReportedByMe"/>
@@ -91,18 +86,11 @@
                     <Button  Content="План реализации" Style="{StaticResource SubMenuButton}"/>
                     <Button  Content="Дерево задач" Style="{StaticResource SubMenuButton}" Command="{Binding TreeReportCommand}" Margin="0 0 0 7.67"/>
                 </StackPanel>
-
-                <Button Content="Отчетность" Style="{StaticResource MenuButton}" BorderBrush="{DynamicResource MainUserControl.Border}" Margin="0 7.67 0 7.67" Visibility="Collapsed">
-                    <e:Interaction.Triggers>
-                        <e:EventTrigger EventName="Click">
-                            <e:InvokeCommandAction Command="{Binding ShowReportWindow}"/>
-                        </e:EventTrigger>
-                    </e:Interaction.Triggers>
-                </Button>
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1" Grid.Column="1">
-            <ContentControl x:Name="ContentHolder"/>
+            <ContentControl x:Name="ContentHolder" Visibility="{Binding Source={StaticResource MainViewModel}, Path=AllTaskTreeVisibility, Mode=TwoWay}"/>
+            <ContentControl x:Name="TasksFilteredContent" Visibility="{Binding Source={StaticResource MainViewModel}, Path=TasksFilteredVisibility, Mode=TwoWay}"/>
         </Grid>
         
         <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Width="5" ShowsPreview="False"/>

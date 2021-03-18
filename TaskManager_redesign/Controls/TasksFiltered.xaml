@@ -19,14 +19,19 @@
             <TextBlock Text="{Binding CurrentViewName}" Name="CanvasTitle" Style="{StaticResource Canvas-Title-h2}" Margin="23 16 0 0"/>
         </Grid>
         <Grid Grid.Row="1" Name="TasksGrid">
-                <TextBox x:Name="AddNewTaskField" Style="{StaticResource placeHolder}" KeyDown="AddNewTaskField_KeyDown" Tag="+ Добавить задачу" VerticalAlignment="Bottom" Height="34" VerticalContentAlignment="Bottom" Margin="63 10">
-                    <e:Interaction.Triggers>
-                        <e:EventTrigger EventName="LostFocus">
-                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=AddNewTask}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=TextBox, Mode=FindAncestor}, Path=Text}"/>
-                            <e:ChangePropertyAction PropertyName="Text" TargetName="AddNewTaskField" Value=""/>
-                        </e:EventTrigger>
-                    </e:Interaction.Triggers>
-                </TextBox>
+            <ListView Name="tasksList" Margin="10" ItemsSource="{Binding Source={StaticResource MainViewModel}, Path=UserTasks}" Style="{StaticResource TasksListFiltered}">
+                
+                <ListView.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock FontSize="18" Margin="10" Foreground="White" Style="{StaticResource h1}" Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ListView.GroupStyle>
+            </ListView>
+            
         </Grid>
     </Grid>
 </UserControl>

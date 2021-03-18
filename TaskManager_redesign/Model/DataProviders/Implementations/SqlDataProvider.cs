@@ -16,7 +16,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
         private List<Status> Statuses;
         private List<Analytic> Analytics;
         private List<TaskToAnalytic> TaskToAnalytics;
-#if development
+#if DevAtHome
         private static readonly string connectionString = @"Data Source=ILYAHOME\MYDB;Initial Catalog=TaskManager;MultipleActiveResultSets=True;Integrated Security=True";
 #else
         private static readonly string connectionString = @"Data Source=a105512\a105512;Initial Catalog=TaskManagerRedesigned;MultipleActiveResultSets=true;Integrated Security=false; user id = TimeSheetuser; password=DK_user!"; //Place Connection String here

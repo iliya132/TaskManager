@@ -21,6 +21,10 @@ namespace TaskManager_redesign.Controls
         public TasksFiltered()
         {
             InitializeComponent();
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(tasksList.ItemsSource);
+            PropertyGroupDescription groupDescription = new PropertyGroupDescription("BaseParentTask");
+            view.GroupDescriptions.Add(groupDescription);
+
         }
 
         private void AddNewTaskField_KeyDown(object sender, KeyEventArgs e)
