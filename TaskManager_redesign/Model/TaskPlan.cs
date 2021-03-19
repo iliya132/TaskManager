@@ -9,6 +9,8 @@ namespace TaskManager_redesign.Model
         public int Id { get; set; }
         public int TaskId { get; set; }
         public int CreatedById { get; set; }
+        [Column("updated_by")]
+        public int UpdatedById { get; set; }
         [Column("is_done")]
         public bool IsDone { get; set; }
         private string _description;
@@ -36,6 +38,7 @@ namespace TaskManager_redesign.Model
         }
         public UserTask Task { get; set; }
         public Analytic CreatedBy { get; set; }
+        public Analytic UpdatedBy { get; set; }
         [NotMapped()]
         public string DescriptionWithDueDate { get => ToString(); }
 

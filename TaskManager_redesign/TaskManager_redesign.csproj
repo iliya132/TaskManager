@@ -4,12 +4,12 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>1.0.0.12</AssemblyVersion>
-    <FileVersion>1.0.0.12</FileVersion>
+    <AssemblyVersion>1.0.0.15</AssemblyVersion>
+    <FileVersion>1.0.0.15</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DevAtHome</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +29,7 @@
     <None Remove="res\dropdownClosed.png" />
     <None Remove="res\multiply.png" />
     <None Remove="res\plus.png" />
-    <None Remove="res\SplashTaskManager.png" />
+    <None Remove="res\Splash.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -89,7 +89,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <SplashScreen Include="res\SplashTaskManager.png">
+    <SplashScreen Include="res\Splash.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </SplashScreen>
   </ItemGroup>

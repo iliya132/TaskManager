@@ -39,7 +39,7 @@ namespace TaskManager_redesign.ViewModel
             InitializeData();
             InitializeCommands();
             InitializeViewModels();
-
+            InitializeEvents();
         }
         private void RaisePropertyChanged(string propertyName)
         {
@@ -145,6 +145,8 @@ namespace TaskManager_redesign.ViewModel
         public Visibility TasksFilteredVisibility { get; set; } = Visibility.Collapsed;
         public Visibility AllTaskTreeVisibility { get; set; }
 
+
+
         public string CurrentViewName { get; set; } = "Все задачи";
         #endregion
 
@@ -174,12 +176,29 @@ namespace TaskManager_redesign.ViewModel
         {
             get
             {
-                double result = 0;
-                foreach(UserTask task in UserTasks)
+                if(CurrentViewName.Equals("Все задачи"))
                 {
-                    result += CalculateSumRecoursive(x => 1, task);
+                    return AllTasks.Count;
                 }
-                return (int)result;
+                else
+                {
+                    return UserTasks.Count;
+                }
+            }
+        }
+
+        public int OverallTaskPlans
+        {
+            get
+            {
+                if (CurrentViewName.Equals("Все задачи"))
+                {
+                    return AllTasks.Select(i=>i.TaskPlans.Count).Sum();
+                }
+                else
+                {
+                    return UserTasks.Select(i => i.TaskPlans.Count).Sum();
+                }
             }
         }
 
@@ -187,12 +206,29 @@ namespace TaskManager_redesign.ViewModel
         {
             get
             {
-                double result = 0;
-                foreach (UserTask task in UserTasks)
+                if(CurrentViewName.Equals("Все задачи"))
                 {
-                    result += CalculateSumRecoursive(x => x.StatusId == 2 ? 1 : 0, task);
+                    return AllTasks.Where(i => i.StatusId == 2).Count();
                 }
-                return (int)result;
+                else
+                {
+                    return UserTasks.Where(i => i.StatusId == 2).Count();
+                }
+            }
+        }
+
+        public int TaskPlansComplete
+        {
+            get
+            {
+                if (CurrentViewName.Equals("Все задачи"))
+                {
+                    return AllTasks.Select(i=>i.TaskPlans.Where(j=>j.IsDone).Count()).Sum();
+                }
+                else
+                {
+                    return UserTasks.Select(i => i.TaskPlans.Where(j => j.IsDone).Count()).Sum();
+                }
             }
         }
 
@@ -200,66 +236,142 @@ namespace TaskManager_redesign.ViewModel
         {
             get
             {
-                double result = 0;
-                foreach (UserTask task in UserTasks)
+                if(CurrentViewName.Equals("Все задачи"))
                 {
-                    result += CalculateSumRecoursive(x => x.StatusId == 1 && x.DueDate > DateTime.Now ? 1 : 0, task);
+                    return AllTasks.Where(i => i.DueDate.CompareTo(DateTime.Today) < 0 && i.StatusId == 1).Count();
                 }
-                return (int)result;
+                else
+                {
+                    return UserTasks.Where(i => i.DueDate.CompareTo(DateTime.Today) < 0 && i.StatusId == 1).Count();
+                }
             }
         }
-        
-        public List<AnalyticStatistic> TasksOnAnalytics
+
+        public int TaskPlansExpired
         {
             get
             {
-                List<AnalyticStatistic> result = new List<AnalyticStatistic>();
-                List<UserTask> tasks = AllTasks.Intersect(UserTasks).ToList();
-                foreach(UserTask tsk in tasks)
+                if (CurrentViewName.Equals("Все задачи"))
                 {
-                    int quarter = (int)Math.Ceiling((double)tsk.DueDate.Month / 3);
-                    bool isTaskExpired = tsk.DueDate > DateTime.Now && tsk.StatusId == 1;
+                    return AllTasks.Select(i => i.TaskPlans.Where(j => j.DueDate.CompareTo(DateTime.Today) < 0 && !j.IsDone).Count()).Sum();
+                }
+                else
+                {
+                    return UserTasks.Select(i => i.TaskPlans.Where(j => j.DueDate.CompareTo(DateTime.Today) < 0 && !j.IsDone).Count()).Sum();
+                }
+            }
+        }
 
-                    foreach (Analytic analytic in tsk.AssignedTo.Select(i=>i.Analytic))
+        private List<AnalyticStatistic> _tasksOnAnalytics;
+        public List<AnalyticStatistic> TasksOnAnalytics
+        {
+            get => _tasksOnAnalytics;
+            set => _tasksOnAnalytics = value;
+        }
+
+        private void UpdateStatistic()
+        {
+            List<AnalyticStatistic> result = new List<AnalyticStatistic>();
+            List<Analytic> analyticsOfInterest = GetCurrentFilterAnalytics();
+            List<UserTask> tasks;
+            
+            if (CurrentTaskFilter == TaskFilter.AllTasks)
+            {
+                tasks = AllTasks;
+            }
+            else
+            {
+                tasks = AllTasks.Intersect(UserTasks).ToList();
+            }
+
+
+
+            foreach (UserTask tsk in tasks)
+            {
+                int quarter = (int)Math.Ceiling((double)tsk.DueDate.Month / 3);
+                int taskPlansExpired = tsk.TaskPlans.Where(i => i.DueDate.CompareTo(DateTime.Today) < 0 && !i.IsDone).Count(); ;
+                
+                
+                foreach (Analytic analytic in tsk.AssignedTo.Select(i => i.Analytic))
+                {
+                    if (!analyticsOfInterest.Contains(analytic))
                     {
-                        if (!result.Any(i => i.Name.Equals(analytic.ToString())))
+                        continue;
+                    }
+                    if (!result.Any(i => i.Name.Equals(analytic.ToString())))
+                    {
+                        result.Add(new AnalyticStatistic
                         {
-                            result.Add(new AnalyticStatistic
-                            {
-                                Name = analytic.ToString()
-                            });
-                        }
-                        AnalyticStatistic record = result.Single(i => i.Name.Equals(analytic.ToString()));
-                        if (tsk.StatusId == 2)
-                        {
-                            record.TasksDone++;
-                        }
-                        record.TasksCount++;
-                        switch(quarter)
-                        {
-                            case 1:
-                                record.q1TasksCount++;
-                                break;
-                            case 2:
-                                record.q2TasksCount++;
-                                break;
-                            case 3:
-                                record.q3TasksCount++;
-                                break;
-                            case 4:
-                                record.q4TasksCount++;
-                                break;
-                        }
-                        if (isTaskExpired)
-                        {
-                            record.TasksExpired++;
-                        }
-                        
+                            Name = analytic.ToString()
+                        });
+                    }
+                    AnalyticStatistic record = result.Single(i => i.Name.Equals(analytic.ToString()));
+                    if (tsk.StatusId == 2)
+                    {
+                        record.TasksDone++;
+                    }
+                    record.TasksCount++;
+                    record.TaskPlansCount += tsk.TaskPlans.Count;
+                    record.TaskPlansDone += tsk.TaskPlans.Where(i => i.UpdatedById == CurrentAnalytic.Id && i.IsDone).Count();
+                    switch (quarter)
+                    {
+                        case 1:
+                            record.q1TasksCount++;
+                            record.q1TaskPlansCount += tsk.TaskPlans.Count;
+                            break;
+                        case 2:
+                            record.q2TasksCount++;
+                            record.q2TaskPlansCount += tsk.TaskPlans.Count;
+                            break;
+                        case 3:
+                            record.q3TasksCount++;
+                            record.q3TaskPlansCount += tsk.TaskPlans.Count;
+                            break;
+                        case 4:
+                            record.q4TasksCount++;
+                            record.q4TaskPlansCount += tsk.TaskPlans.Count;
+                            break;
+                    }
+                    if (tsk.DueDate.CompareTo(DateTime.Today) < 0 && tsk.AssignedTo.Single(i=>i.AnalyticId==analytic.Id).StatusId == 1)
+                    {
+                        record.TasksExpired++;
+                    }
+                    record.TaskPlansExpired += taskPlansExpired;
+                }
+            }
+
+            TasksOnAnalytics = result.OrderBy(i => i.Name).ToList();
+        }
+
+        private List<Analytic> GetCurrentFilterAnalytics()
+        {
+            List<Analytic> result = new List<Analytic>();
+            if(CurrentTaskFilter == TaskFilter.AllTasks)
+            {
+                foreach (var item in AllTasks.Select(i => i.AssignedTo))
+                {
+                    result.AddRange(item.Select(j => j.Analytic));
+                }
+            }else if (CurrentTaskFilter == TaskFilter.AssignedToMe)
+            {
+                result.Add(CurrentAnalytic);
+            }else if (CurrentTaskFilter == TaskFilter.ReportedByMe)
+            {
+                foreach(UserTask reportedByMeTask in AllTasks.Where(i=>i.CreatedById == CurrentAnalytic.Id))
+                {
+                    foreach(var item in AllTasks.Select(i => i.AssignedTo))
+                    {
+                        result.AddRange(item.Select(j => j.Analytic));
                     }
                 }
-                
-                return result;
+            }else if(CurrentTaskFilter == TaskFilter.MyStructure)
+            {
+                foreach(var item in AnalyticsAtStructures.Where(j=>StructuresFiltered.Any(i=>i==j.Key)))
+                {
+                    result.AddRange(item.Value);
+                }
             }
+            return result;
         }
 
         private double CalculateSumRecoursive(Func<UserTask, double> func, UserTask task)
@@ -277,8 +389,11 @@ namespace TaskManager_redesign.ViewModel
         private void OnStatisticChanged()
         {
             RaisePropertyChanged(nameof(OverallTasks));
+            RaisePropertyChanged(nameof(OverallTaskPlans));
             RaisePropertyChanged(nameof(TasksComplete));
+            RaisePropertyChanged(nameof(TaskPlansComplete));
             RaisePropertyChanged(nameof(TasksExpired));
+            RaisePropertyChanged(nameof(TaskPlansExpired));
             RaisePropertyChanged(nameof(TasksOnAnalytics));
         }
         #endregion
@@ -394,12 +509,21 @@ namespace TaskManager_redesign.ViewModel
             Statuses = new List<Status>(dataProvider.GetStatuses());
             CurrentAnalytic = dataProvider.GetUser(Environment.UserName);
             AnalyticsAtStructures = dataProvider.GenerateAnalyticsTostructures();
+            UpdateStatistic();
         }
+
         private void InitializeViewModels()
         {
             SelectEmployeeViewModel sevm = SelectEmployeeViewModel.GetInstance();
             sevm.AvailableAnalytics = new ObservableCollection<Analytic>(dataProvider.GetAnalytics());
         }
+
+        private void InitializeEvents()
+        {
+            AfterTaskFilteredEvent += () => UpdateStatistic();
+
+        }
+
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName.Equals(nameof(SelectedItem)))
@@ -584,11 +708,23 @@ namespace TaskManager_redesign.ViewModel
                         break;
                     case ("AssignedToMe"):
                         CurrentViewName = "Задачи назначенные мне";
+                        TasksFilteredVisibility = Visibility.Visible;
+                        AllTaskTreeVisibility = Visibility.Collapsed;
+                        RaisePropertyChanged(nameof(TasksFilteredVisibility));
+                        RaisePropertyChanged(nameof(AllTaskTreeVisibility));
                         break;
                     case ("ReportedByMe"):
+                        TasksFilteredVisibility = Visibility.Visible;
+                        AllTaskTreeVisibility = Visibility.Collapsed;
+                        RaisePropertyChanged(nameof(TasksFilteredVisibility));
+                        RaisePropertyChanged(nameof(AllTaskTreeVisibility));
                         CurrentViewName = "Задачи инициированные мной";
                         break;
                     case ("MyStructure"):
+                        TasksFilteredVisibility = Visibility.Visible;
+                        AllTaskTreeVisibility = Visibility.Collapsed;
+                        RaisePropertyChanged(nameof(TasksFilteredVisibility));
+                        RaisePropertyChanged(nameof(AllTaskTreeVisibility));
                         CurrentViewName = "Фильтр по подразделению";
                         break;
                 }
@@ -597,6 +733,8 @@ namespace TaskManager_redesign.ViewModel
             }
         }
 
+        public delegate void AfterTaskFiltered();
+        public event AfterTaskFiltered AfterTaskFilteredEvent;
         private void UpdateTaskCollection()
         {
             List<UserTask> newValues = new List<UserTask>();
@@ -607,14 +745,14 @@ namespace TaskManager_redesign.ViewModel
                     AllTasks.Where(i => i.ParentTaskId == null).OrderBy(i=>i.BaseParentTask.Name).ToList().ForEach(newValues.Add);
                     break;
                 case (TaskFilter.AssignedToMe):
-                    AllTasks.Where(i => i.AssignedTo.Any(anl=>anl.AnalyticId == CurrentAnalytic.Id)).ToList().ForEach(newValues.Add);
+                    AllTasks.Where(i => i.AssignedTo.Any(anl=>anl.AnalyticId == CurrentAnalytic.Id)).OrderBy(i => i.BaseParentTask.Name).ToList().ForEach(newValues.Add);
                     break;
                 case (TaskFilter.ReportedByMe):
-                    AllTasks.Where(i => i.CreatedById == CurrentAnalytic.Id).ToList().ForEach(newValues.Add);
+                    AllTasks.Where(i => i.CreatedById == CurrentAnalytic.Id).OrderBy(i=>i.BaseParentTask.Name).ToList().ForEach(newValues.Add);
                     break;
                 case (TaskFilter.MyStructure):
                     AllTasks.Where(i => i.AssignedTo.Select(j => j.Analytic).
-                    Any(k => currentFilterAnalyticsSet.Any(m => m.Id == k.Id))).
+                    Any(k => currentFilterAnalyticsSet.Any(m => m.Id == k.Id))).OrderBy(i => i.BaseParentTask.Name).
                 ToList().ForEach(newValues.Add);
                     break;
             }
@@ -624,6 +762,7 @@ namespace TaskManager_redesign.ViewModel
             {
                 UserTasks.Add(task);
             }
+            AfterTaskFilteredEvent?.Invoke();
         }
 
         private void HandleDragAndDropAction((UserTask, UserTask) FromTo)

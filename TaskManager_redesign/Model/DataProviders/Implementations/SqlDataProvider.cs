@@ -15,6 +15,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
         private static readonly SqlConnection connection;
         private List<Status> Statuses;
         private List<Analytic> Analytics;
+        private Analytic CurrentAnalytic;
         private List<TaskToAnalytic> TaskToAnalytics;
 #if DevAtHome
         private static readonly string connectionString = @"Data Source=ILYAHOME\MYDB;Initial Catalog=TaskManager;MultipleActiveResultSets=True;Integrated Security=True";
@@ -55,6 +56,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
             Statuses = new List<Status>(GetStatuses());
             Analytics = new List<Analytic>(GetAnalytics());
             TaskToAnalytics = new List<TaskToAnalytic>(GetTasksToAnalytics());
+            CurrentAnalytic = Analytics.SingleOrDefault(i => i.UserName.ToLower().Equals(Environment.UserName.ToLower()));
         }
 
        
@@ -421,7 +423,7 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
         private IEnumerable<TaskPlan> GetTaskPlans(int task_id)
         {
             List<TaskPlan> result = new List<TaskPlan>();
-            string query = "select id, task, description, created_at, created_by, due_date, is_done from TaskPlan where task = @task order by due_date;";
+            string query = "select id, task, description, created_at, created_by, due_date, is_done, updated_by from TaskPlan where task = @task order by due_date;";
             SqlCommand getPlans = new SqlCommand(query, connection);
             getPlans.Parameters.AddWithValue("@task", task_id);
             using (SqlDataReader reader = getPlans.ExecuteReader())
@@ -441,6 +443,11 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
                         IsDone = reader.GetBoolean(6)
 
                     };
+                    if (!reader.IsDBNull(7))
+                    {
+                        newPlan.UpdatedById = reader.GetInt32(7);
+                        newPlan.UpdatedBy = Analytics.SingleOrDefault(i => i.Id == newPlan.UpdatedById);
+                    }
                     newPlan.CreatedBy = Analytics.SingleOrDefault(i => i.Id == newPlan.CreatedById);
                     result.Add(newPlan);
                 }
@@ -450,9 +457,10 @@ namespace TaskManager_redesign.Model.DataProviders.Implementations
 
         public void ChangePlanStatus(TaskPlan plan)
         {
-            string sqlQuery = "update TaskPlan set is_done = @is_done where id = @id;";
+            string sqlQuery = "update TaskPlan set is_done = @is_done, updated_by = @updatedBy where id = @id;";
             SqlCommand command = new SqlCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@is_done", plan.IsDone);
+            command.Parameters.AddWithValue("@updatedBy", CurrentAnalytic.Id);
             command.Parameters.AddWithValue("@id", plan.Id);
             command.ExecuteNonQuery();
         }

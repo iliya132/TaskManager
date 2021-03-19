@@ -125,18 +125,5 @@ namespace TaskManager_redesign
             UpdateService.CheckForUpdate();
         }
 
-        private void ReportBtn_Click(object sender, RoutedEventArgs e)
-        {
-            TasksFilteredContent.Visibility = Visibility.Visible;
-            ContentHolder.Visibility = Visibility.Collapsed;
-            
-        }
-
-        private void AllTasksBtnClick(object sender, RoutedEventArgs e)
-        {
-            TasksFilteredContent.Visibility = Visibility.Collapsed;
-            ContentHolder.Visibility = Visibility.Visible;
-            
-        }
     }
 }

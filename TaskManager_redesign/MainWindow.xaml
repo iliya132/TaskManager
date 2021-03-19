@@ -47,16 +47,16 @@
         </Grid>
         <Grid Grid.Row="1" Grid.Column="0" Name="Menu">
             <StackPanel>
-                <Button  Content="Все задачи" Style="{StaticResource MenuButton}" Name="AllTasksBtn" Command="{Binding Source={StaticResource MainViewModel}, Path=SetFilterState}" CommandParameter="AllTasks" Click="AllTasksBtnClick" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
+                <Button  Content="Все задачи" Style="{StaticResource MenuButton}" Name="AllTasksBtn" Command="{Binding Source={StaticResource MainViewModel}, Path=SetFilterState}" CommandParameter="AllTasks" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
                 </Button>
-                <Button  Content="Я ответственный" Click="ReportBtn_Click" Style="{StaticResource MenuButton}" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
+                <Button  Content="Я ответственный"  Style="{StaticResource MenuButton}" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
                     <e:Interaction.Triggers>
                         <e:EventTrigger EventName="Click">
                             <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=SetFilterState}" CommandParameter="AssignedToMe"/>
                         </e:EventTrigger>
                     </e:Interaction.Triggers>
                 </Button>
-                <Button  Content="Я инициатор" Click="ReportBtn_Click" Style="{StaticResource MenuButton}" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
+                <Button  Content="Я инициатор"  Style="{StaticResource MenuButton}" Margin="0 0 0 7.67" BorderBrush="{DynamicResource MainUserControl.Border}" BorderThickness="1">
                     <e:Interaction.Triggers>
                         <e:EventTrigger EventName="Click">
                             <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=SetFilterState}" CommandParameter="ReportedByMe"/>
@@ -99,25 +99,117 @@
                 </TabItem>
                 <TabItem Header="Статистика" Width="150">
                     <Grid>
-                        <StackPanel>
-                            <TextBlock Text="{Binding OverallTasks, StringFormat=Всего задач: {0}}"/>
-                            <TextBlock Text="{Binding TasksComplete, StringFormat=Завершено задач: {0}}"/>
-                            <TextBlock Text="{Binding TasksExpired, StringFormat=Просрочено задач: {0}}"/>
-                            <DataGrid ItemsSource="{Binding TasksOnAnalytics}" IsReadOnly="True" AutoGenerateColumns="False">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding Name, Mode=OneWay}" Header="Сотрудник"/>
-                                    <DataGridTextColumn Binding="{Binding TasksCount, Mode=OneWay}" Header="Всего задач"/>
-                                    <DataGridTextColumn Binding="{Binding TasksDone, Mode=OneWay}" Header="Завершено"/>
-                                    <DataGridTextColumn Binding="{Binding TasksExpired, Mode=OneWay}" Header="Просрочено"/>
-                                    <DataGridTextColumn Binding="{Binding q1TasksCount, Mode=OneWay}" Header="Задач на 1 кв"/>
-                                    <DataGridTextColumn Binding="{Binding q2TasksCount, Mode=OneWay}" Header="Задач на 2 кв"/>
-                                    <DataGridTextColumn Binding="{Binding q3TasksCount, Mode=OneWay}" Header="Задач на 3 кв"/>
-                                    <DataGridTextColumn Binding="{Binding q4TasksCount, Mode=OneWay}" Header="Задач на 4 кв"/>
-                                    <DataGridTextColumn Binding="{Binding TasksCompletionPercent, Mode=OneWay}" Header="%Завершения"/>
-                                    <DataGridTextColumn Binding="{Binding TasksExpiredPercent, Mode=OneWay}" Header="%Просрочек"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </StackPanel>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding OverallTasks, StringFormat=Всего {0} задач и}"/>
+                                    <TextBlock Text="{Binding OverallTaskPlans, StringFormat={} {0} шагов}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding TasksComplete, StringFormat=Завершено {0} задач и }"/>
+                                    <TextBlock Text="{Binding TaskPlansComplete, StringFormat={} {0} шагов}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding TasksExpired, StringFormat=Просрочено {0} задач и }"/>
+                                    <TextBlock Text="{Binding TaskPlansExpired, StringFormat={} {0} шагов}"/>
+                                </StackPanel>
+                                <DataGrid ItemsSource="{Binding TasksOnAnalytics}" IsReadOnly="True" AutoGenerateColumns="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Binding="{Binding Name, Mode=OneWay}" Header="Сотрудник"/>
+                                        <DataGridTemplateColumn Header="Всего задач/шагов">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="{Binding TasksCount, Mode=OneWay,StringFormat={}{0} / }"/>
+                                                        <TextBlock Text="{Binding TaskPlansCount, Mode=OneWay,StringFormat={} {0}}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="Завершено задач/шагов">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="{Binding TasksDone, Mode=OneWay,StringFormat={}{0} / }"/>
+                                                        <TextBlock Text="{Binding TaskPlansDone, Mode=OneWay,StringFormat={} {0}}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="Просрочено задач/шагов">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="{Binding TasksExpired, Mode=OneWay,StringFormat={}{0} / }"/>
+                                                        <TextBlock Text="{Binding TaskPlansExpired, Mode=OneWay,StringFormat={} {0}}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="1кв задач/шагов">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="{Binding q1TasksCount, Mode=OneWay,StringFormat={}{0} / }"/>
+                                                        <TextBlock Text="{Binding q1TaskPlansCount, Mode=OneWay,StringFormat={} {0}}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="2кв задач/шагов">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="{Binding q2TasksCount, Mode=OneWay,StringFormat={}{0} / }"/>
+                                                        <TextBlock Text="{Binding q2TaskPlansCount, Mode=OneWay,StringFormat={} {0}}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="3кв задач/шагов">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="{Binding q3TasksCount, Mode=OneWay,StringFormat={}{0} / }"/>
+                                                        <TextBlock Text="{Binding q3TaskPlansCount, Mode=OneWay,StringFormat={} {0}}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="4кв задач/шагов">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="{Binding q4TasksCount, Mode=OneWay,StringFormat={}{0} / }"/>
+                                                        <TextBlock Text="{Binding q4TaskPlansCount, Mode=OneWay,StringFormat={} {0}}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="%Завершения задач/шагов">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="{Binding TasksCompletionPercent, Mode=OneWay,StringFormat={}{0}% / }"/>
+                                                        <TextBlock Text="{Binding TaskPlansCompletionPercent, Mode=OneWay,StringFormat={} {0}%}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="%Просрочек задач/шагов">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="{Binding TasksExpiredPercent, Mode=OneWay,StringFormat={}{0}% / }"/>
+                                                        <TextBlock Text="{Binding TaskPlansExpiredPercent, Mode=OneWay,StringFormat={} {0}%}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </ScrollViewer>
                     </Grid>
                 </TabItem>
             </TabControl>

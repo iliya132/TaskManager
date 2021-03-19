@@ -54,14 +54,6 @@
                         </e:EventTrigger>
                     </e:Interaction.Triggers>
                 </Button>
-                <Button Name="ONTIBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
-                    <TextBlock Text="ОНТИЭ" Margin="4 0 0 0" VerticalAlignment="Center"/>
-                    <e:Interaction.Triggers>
-                        <e:EventTrigger EventName="Click">
-                            <e:InvokeCommandAction Command="{Binding Source={StaticResource MainViewModel}, Path=ChangeStructureFilter}" CommandParameter="3"/>
-                        </e:EventTrigger>
-                    </e:Interaction.Triggers>
-                </Button>
                 <Button Name="OSRTKDBtn" Click="SelectorBtnClick" Margin="15 0 0 0" HorizontalContentAlignment="Left" Style="{StaticResource BtnStyle}">
                     <TextBlock Text="ОРТМКД" Margin="4 0 0 0" VerticalAlignment="Center"/>
                     <e:Interaction.Triggers>
